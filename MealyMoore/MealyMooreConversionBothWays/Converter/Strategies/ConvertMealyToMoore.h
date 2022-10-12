@@ -5,8 +5,8 @@
 class ConvertMealyToMoore : public IConvertStrategy
 {
 public:
-	TableView Convert(TableView&, std::string sign) override;
+	TableView Convert(const TableView&, std::string sign) override;
 
 protected:
-	TableView RetrieveTransitionTable(TableView&) override;
+	TableView RetrieveTransitionTable(const TableView&) override;
 };

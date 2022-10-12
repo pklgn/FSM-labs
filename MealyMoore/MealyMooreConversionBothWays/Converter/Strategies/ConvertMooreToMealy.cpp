@@ -1,7 +1,7 @@
 #include "../../pch.h"
 #include "ConvertMooreToMealy.h"
 
-TableView ConvertMooreToMealy::RetrieveTransitionTable(TableView& srcTable)
+TableView ConvertMooreToMealy::RetrieveTransitionTable(const TableView& srcTable)
 {
 	TableView result = srcTable;
 
@@ -17,7 +17,7 @@ TableView ConvertMooreToMealy::RetrieveTransitionTable(TableView& srcTable)
 	return result;
 }
 
-TableView ConvertMooreToMealy::Convert(TableView& srcTable, std::string sign)
+TableView ConvertMooreToMealy::Convert(const TableView& srcTable, std::string sign)
 {
 	TableView resultMealyTable = RetrieveTransitionTable(srcTable);
 

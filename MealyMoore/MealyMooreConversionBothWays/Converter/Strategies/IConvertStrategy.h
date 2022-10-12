@@ -5,10 +5,10 @@
 class IConvertStrategy
 {
 public:
-	virtual TableView Convert(TableView&, std::string sign = "S") = 0;
+	virtual TableView Convert(const TableView&, std::string sign = "S") = 0;
 
 	virtual ~IConvertStrategy() = default;
 
 protected:
-	virtual TableView RetrieveTransitionTable(TableView&) = 0;
+	virtual TableView RetrieveTransitionTable(const TableView&) = 0;
 };
