@@ -37,10 +37,19 @@ int main(int argc, char* argv[])
 
     CSVReader reader(argv[2]);
 
-    TableView tableView = reader.ReadCSVTable();
-    FSMConverter converter(mode);
-    TableView result = converter.Convert(tableView);
+	try
+	{
+		TableView tableView = reader.ReadCSVTable();
+		FSMConverter converter(mode);
+		TableView result = converter.Convert(tableView);
 
-    CSVWriter writer;
-	writer.WriteCSVTable(result, argv[3]);
+		CSVWriter writer;
+		writer.WriteCSVTable(result, argv[3]);
+	}
+	catch (std::exception& ex)
+	{
+		std::cout << ex.what();
+
+		return 1;
+	}
 }
