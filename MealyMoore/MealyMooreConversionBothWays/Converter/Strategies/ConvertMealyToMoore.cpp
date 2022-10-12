@@ -3,10 +3,11 @@
 
 constexpr int HEADER_LINE_INDEX = 0;
 constexpr int INPUT_SIGNAL_COLUMN_INDEX = 0;
+const char MEALY_STATE_DELIMETER = '/';
 
 std::string RetrieveDestinationState(const std::string& tableField)
 {
-	std::string::size_type pos = tableField.find('/');
+	std::string::size_type pos = tableField.find(MEALY_STATE_DELIMETER);
 	if (pos != std::string::npos)
 	{
 		return tableField.substr(0, pos);
@@ -17,7 +18,7 @@ std::string RetrieveDestinationState(const std::string& tableField)
 
 std::string RetrieveOutputSignal(const std::string& tableField)
 {
-	std::string::size_type pos = tableField.find('/');
+	std::string::size_type pos = tableField.find(MEALY_STATE_DELIMETER);
 	if (pos != std::string::npos)
 	{
 		return tableField.substr(pos + 1);
