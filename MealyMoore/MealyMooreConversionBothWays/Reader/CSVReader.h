@@ -9,8 +9,6 @@ public:
 
 	TableView ReadCSVTable() override;
 
-	TableView GetTableView() const override;
-
 protected:
 	std::string m_inputCSVFileName;
 	TableView m_tableView;

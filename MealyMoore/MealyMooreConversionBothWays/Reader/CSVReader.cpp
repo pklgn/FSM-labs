@@ -24,8 +24,3 @@ TableView CSVReader::ReadCSVTable()
 
 	return m_tableView;
 }
-
-TableView CSVReader::GetTableView() const
-{
-    return m_tableView;
-}
