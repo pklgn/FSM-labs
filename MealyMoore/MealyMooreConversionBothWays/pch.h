@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <set>
 #include <iterator>
+#include <iostream>
 
 #include "../../csv-parser/single_include/csv.hpp"
 

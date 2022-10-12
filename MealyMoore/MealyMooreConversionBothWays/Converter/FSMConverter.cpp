@@ -25,3 +25,16 @@ void FSMConverter::SetConvertStrategy(ConvertStrategyPtr convertStrategy)
 {
     m_convertStrategy = std::move(convertStrategy);
 }
+
+std::string FSMConverter::ModeToString(Mode mode)
+{
+	switch (mode)
+	{
+	case Mode::MEALY_TO_MOORE:
+		return "mealy-to-moore";
+	case Mode::MOORE_TO_MEALY:
+		return "moore-to-mealy";
+	default:
+		return "";
+    }
+}

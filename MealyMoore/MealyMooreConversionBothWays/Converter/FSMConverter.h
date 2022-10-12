@@ -20,6 +20,8 @@ public:
 
 	void SetConvertStrategy(ConvertStrategyPtr);
 
+	static std::string ModeToString(Mode);
+
 protected:
 	ConvertStrategyPtr m_convertStrategy;
 };
