@@ -12,7 +12,14 @@ TableView CSVReader::ReadCSVTable()
         .delimiter(';')
         .trim({' '});
 
-    csv::CSVReader reader(m_inputCSVFileName, format);
+    std::ifstream infile(m_inputCSVFileName, std::ios::binary);
+
+    if (!infile.is_open())
+	{
+		throw std::runtime_error("Failed to open input file for reading\n");
+	}
+
+    csv::CSVReader reader(infile, format);
 
     for (csv::CSVRow& row : reader) {
         TableRow parsedRow;
