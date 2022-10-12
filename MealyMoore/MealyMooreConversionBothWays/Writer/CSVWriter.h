@@ -6,5 +6,5 @@
 class CSVWriter
 {
 public:
-	void WriteCSVTable(TableView&, const std::string& outputFilename);
+	void WriteCSVTable(const TableView&, const std::string& outputFilename);
 };
