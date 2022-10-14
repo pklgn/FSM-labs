@@ -102,7 +102,7 @@ TableView ConvertMealyToMoore::Convert(const TableView& srcTable, std::string si
     //rename states
     for (size_t stateCounter = 0; stateCounter < uniqueStates.size(); ++stateCounter)
 	{
-		uniqueStates[stateCounter] = sign + std::to_string(stateCounter) + " (" + uniqueStates[stateCounter] + ")";
+		uniqueStates[stateCounter] = sign + std::to_string(stateCounter);
     }
     uniqueStates.insert(uniqueStates.begin(), "");
 
