@@ -2,6 +2,12 @@
 #include "CSVReader.h"
 
 const char CSV_DELIMETER = ';';
+const char MEALY_STATE_DELIMETER = '/';
+
+template <typename T>
+void InitTransitionTableWithStates(std::istringstream& iss, States& states, T& transitionTable);
+std::string RetrieveOutputSignal(const std::string& tableField);
+std::string RetrieveDestinationState(const std::string& tableField);
 
 CSVReader::CSVReader(const std::string& inputFileName)
 	: m_inputFile(inputFileName)
@@ -10,7 +16,6 @@ CSVReader::CSVReader(const std::string& inputFileName)
 
 MealyTable CSVReader::ReadMealyTable()
 {
-	MealyTable mealyTable;
 	std::string row;
 	std::istringstream lineStream;
 
@@ -20,15 +25,8 @@ MealyTable CSVReader::ReadMealyTable()
 
 	State state;
 	States states;
-	TransitionTable transitionTable;
-	while (std::getline(lineStream, state, CSV_DELIMETER))
-	{
-		if (!state.empty())
-		{
-			states.push_back(state);
-			transitionTable[state];
-		}
-	}
+	MealyTransitionTable transitionTable;
+	InitTransitionTableWithStates(lineStream, states, transitionTable);
 
 	std::string tableField;
 	InputSignals inputSignals;
@@ -41,13 +39,13 @@ MealyTable CSVReader::ReadMealyTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMETER); ++columnIndex)
 		{
-			transitionTable[states[columnIndex]].push_back(tableField);
+			State state = RetrieveDestinationState(tableField);
+			Signal outputSignal = RetrieveOutputSignal(tableField);
+			transitionTable[states[columnIndex]].push_back(StateTransition{ state, outputSignal });
 		}
 	}
 
-	mealyTable.SetInputSignals(inputSignals);
-	mealyTable.SetStates(states);
-	mealyTable.SetTransitionTable(transitionTable);
+	MealyTable mealyTable{ states, inputSignals, transitionTable };
 
 	return mealyTable;
 }
@@ -68,13 +66,67 @@ MooreTable CSVReader::ReadMooreTable()
 		}
 	}
 
-	MealyTable mealyTable = ReadMealyTable();
+	std::string row;
+	std::getline(m_inputFile, row);
+	lineStream.str(row);
+	lineStream.clear();
+	State state;
+	States states;
+	MooreTransitionTable transitionTable;
+	InitTransitionTableWithStates(lineStream, states, transitionTable);
 
-	MooreTable mooreTable;
-	mooreTable.SetInputSignals(mealyTable.GetInputSignals());
-	mooreTable.SetOutputSignals(outputSignals);
-	mooreTable.SetStates(mealyTable.GetStates());
-	mooreTable.SetTransitionTable(mealyTable.GetTransitionTable());
+	std::string tableField;
+	InputSignals inputSignals;
+	while (std::getline(m_inputFile, row))
+	{
+		lineStream.str(row);
+		lineStream.clear();
+		std::getline(lineStream, tableField, CSV_DELIMETER);
+		inputSignals.push_back(tableField);
+
+		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMETER); ++columnIndex)
+		{
+			transitionTable[states[columnIndex]].push_back(tableField);
+		}
+	}
+
+	MooreTable mooreTable{ states, inputSignals, transitionTable, outputSignals };
 
 	return mooreTable;
+}
+
+std::string RetrieveDestinationState(const std::string& tableField)
+{
+	std::string::size_type pos = tableField.find(MEALY_STATE_DELIMETER);
+	if (pos != std::string::npos)
+	{
+		return tableField.substr(0, pos);
+	}
+
+	return tableField;
+}
+
+std::string RetrieveOutputSignal(const std::string& tableField)
+{
+	std::string::size_type pos = tableField.find(MEALY_STATE_DELIMETER);
+	if (pos != std::string::npos)
+	{
+		return tableField.substr(pos + 1);
+	}
+
+	return tableField;
+}
+
+template<typename T>
+void InitTransitionTableWithStates(std::istringstream& iss, States& states, T& transitionTable)
+{
+	std::string state;
+	while (std::getline(iss, state, CSV_DELIMETER))
+	{
+		if (!state.empty())
+		{
+			states.push_back(state);
+			transitionTable[state];
+		}
+	}
 }

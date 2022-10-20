@@ -2,31 +2,25 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <utility>
 #include <unordered_map>
+#include "FSMTable.hpp"
 
+using StateTransitions = std::vector<StateTransition>;
+using MealyTransitionTable = std::unordered_map<State, StateTransitions>;
 
-using State = std::string;
-using Signal = std::string;
-using States = std::vector<State>;
-using InputSignals = std::vector<Signal>;
-using TransitionTable = std::unordered_map<State, States>;
-
-
-class MealyTable
+class MealyTable : public FSMTable<MealyTransitionTable>
 {
 public:
-	States GetStates() const;
-	InputSignals GetInputSignals() const;
-	TransitionTable GetTransitionTable() const;
+	MealyTable(States& states, InputSignals& inputSignals, MealyTransitionTable& transitionTable)
+		: FSMTable(states, inputSignals, transitionTable)
+	{
+	}
 
-	void SetStates(const States&);
-	void SetInputSignals(const InputSignals&);
-	void SetTransitionTable(const TransitionTable&);
-
-	virtual ~MealyTable() = default;
+	void Minimize() override;
 
 protected:
-	States m_states;
-	InputSignals m_inputSignals;
-	TransitionTable m_transitionTable;
+	void RecursiveMinimize() override;
+
+	void RemoveUnreachableStates() override;
 };
