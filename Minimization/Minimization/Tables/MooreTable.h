@@ -4,9 +4,16 @@
 #include "FSMTable.hpp"
 
 using OutputSignals = std::vector<Signal>;
-using MooreState = StateTransition;
-using MooreStates = std::vector<MooreState>;
 using MooreTransitionTable = std::unordered_map<State, States>;
+
+struct StateTransition
+{
+	State state;
+	Signal outputSignal;
+};
+
+using MooreStates = std::vector<StateTransition>;
+
 
 class MooreTable : public FSMTable<MooreTransitionTable>
 {
@@ -32,7 +39,7 @@ public:
 protected:
 	void RemoveUnreachableStates() override;
 
-	void RecursiveMinimize() override;
+	void RecursiveMinimize(size_t eqvClassesCount) override;
 
 	MooreStates m_mooreStates;
 	OutputSignals m_outputSignals;

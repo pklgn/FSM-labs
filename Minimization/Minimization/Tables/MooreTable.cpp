@@ -71,6 +71,6 @@ void MooreTable::RemoveUnreachableStates()
 	}
 }
 
-void MooreTable::RecursiveMinimize()
+void MooreTable::RecursiveMinimize(size_t eqvClassesCount)
 {
 }

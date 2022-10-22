@@ -1,55 +1,62 @@
 #include <deque>
 #include <set>
+#include <unordered_set>
 #include <algorithm>
 #include "MealyTable.h"
 
+struct HashFunction
+{
+	size_t operator()(const std::vector<std::string>& myVector) const
+	{
+		std::hash<std::string> hasher;
+		size_t answer = 0;
+
+		for (std::string i : myVector)
+		{
+			answer ^= hasher(i) + 0x9e3779b9 + (answer << 6) + (answer >> 2);
+		}
+		return answer;
+	}
+};
+
 void MealyTable::Minimize()
 {
-	std::vector<std::vector<Signal>> outputSignals;
-	outputSignals.resize(m_transitionTable.size());
-	size_t columnIndex = 0;
+	std::unordered_set<std::vector<Signal>, HashFunction> uniqueOutputSignals;
+
 	for (auto& column : m_transitionTable)
 	{
-		for (auto& field : column.second)
-		{
-			outputSignals[columnIndex].push_back(field.outputSignal);
-		}
-
-		++columnIndex;
+		auto insertResult = uniqueOutputSignals.insert(column.second.outputSignals);
+		m_eqvClasses[column.first] = uniqueOutputSignals.size();
 	}
 
-	std::vector<std::vector<Signal>> uniqueOutputSignals = outputSignals;
-	std::sort(uniqueOutputSignals.begin(), uniqueOutputSignals.end());
-	uniqueOutputSignals.erase(std::unique(uniqueOutputSignals.begin(), uniqueOutputSignals.end()), uniqueOutputSignals.end());
-
-	auto uniqueOutputSignalsIt = uniqueOutputSignals.begin();
-	for (auto& uniqueOutputSignal : uniqueOutputSignals)
-	{
-		auto it = outputSignals.begin();
-		while ((it = std::find(it, outputSignals.end(), uniqueOutputSignal)) != outputSignals.end())
-		{
-			auto columnIndex = std::distance(outputSignals.begin(), it);
-			m_eqvClasses[m_states[columnIndex]] = std::distance(uniqueOutputSignals.begin(), uniqueOutputSignalsIt);
-
-			it++;
-		}
-
-		++uniqueOutputSignalsIt;
-	}
-
-	RecursiveMinimize();
+	RecursiveMinimize(uniqueOutputSignals.size());
 }
 
-void MealyTable::RecursiveMinimize()
+void MealyTable::RecursiveMinimize(size_t eqvClassesCount)
 {
 	for (auto& column : m_transitionTable)
 	{
-		for (auto& transition: column.second)
+		for (size_t rowIndex = 0; rowIndex < m_inputSignals.size(); ++rowIndex)
 		{
-			transition.state = std::to_string(m_eqvClasses[transition.state]);
+			column.second.renamedStates[rowIndex] = column.second.states[rowIndex];
 		}
 	}
 
+	m_eqvClasses.clear();
+
+	std::unordered_set<States, HashFunction> uniqueStates;
+	for (auto& column : m_transitionTable)
+	{
+		auto insertResult = uniqueStates.insert(column.second.renamedStates);
+		m_eqvClasses[column.first] = uniqueStates.size();
+	}
+
+	if (uniqueStates.size() != eqvClassesCount)
+	{
+		RecursiveMinimize(uniqueStates.size());
+	}
+
+	return;
 }
 
 void MealyTable::RemoveUnreachableStates()
@@ -61,12 +68,12 @@ void MealyTable::RemoveUnreachableStates()
 	std::deque<State> statesWave;
 
 	reachableStates.insert(inspectedState);
-	for (auto& mealyState : m_transitionTable[inspectedState])
+	for (auto& mealyState : m_transitionTable[inspectedState].states)
 	{
-		if (inspectedState != mealyState.state)
+		if (inspectedState != mealyState)
 		{
-			statesWave.push_back(mealyState.state);
-			reachableStates.insert(mealyState.state);
+			statesWave.push_back(mealyState);
+			reachableStates.insert(mealyState);
 		}
 	}
 	traversedStates.insert(inspectedState);
@@ -75,9 +82,9 @@ void MealyTable::RemoveUnreachableStates()
 	{
 		inspectedState = statesWave.front();
 		traversedStates.insert(inspectedState);
-		for (auto& transitionState : m_transitionTable[inspectedState])
+		for (auto& transitionState : m_transitionTable[inspectedState].states)
 		{
-			State destinationState = transitionState.state;
+			State destinationState = transitionState;
 			if (inspectedState != destinationState)
 			{
 				reachableStates.insert(destinationState);

@@ -9,18 +9,14 @@ using Signal = std::string;
 using States = std::vector<State>;
 using InputSignals = std::vector<Signal>;
 
-//struct StateEquivalence—lass
-//{
-//	State state;
-//	long long eqvClass;
-//};
-
 using StateEquivalence—lasses = std::unordered_map<State, size_t>;
 
-struct StateTransition
+struct StateTransitions
 {
-	State state;
-	Signal outputSignal;
+	std::vector<State> states;
+	std::vector<Signal> outputSignals;
+
+	std::vector<State> renamedStates;
 };
 
 template <typename T>
@@ -56,7 +52,7 @@ public:
 	virtual ~FSMTable() = default;
 
 protected:
-	virtual void RecursiveMinimize() = 0;
+	virtual void RecursiveMinimize(size_t eqvClassesCount) = 0;
 
 	States m_states;
 	InputSignals m_inputSignals;
