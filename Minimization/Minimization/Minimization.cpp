@@ -4,7 +4,7 @@ int main()
 {
 	CSVReader reader("INPUT.TXT");
 
-	auto table = reader.ReadMooreTable();
+	auto table = reader.ReadMealyTable();
 	table.Minimize();
 
 }

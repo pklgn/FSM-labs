@@ -4,6 +4,7 @@
 #include <deque>
 #include <vector>
 #include <string>
+#include <optional>
 #include <algorithm>
 #include <type_traits>
 #include <unordered_map>
@@ -30,6 +31,29 @@ struct MealyStateTransitions : FSMStateTransitions
 
 using MealyTransitionTable = std::unordered_map<State, MealyStateTransitions>;
 using MooreTransitionTable = std::unordered_map<State, FSMStateTransitions>;
+
+struct FSMHashFunction
+{
+	size_t operator()(const Signals& signals) const
+	{
+		std::hash<Signal> hasher;
+		size_t answer = 0;
+
+		for (Signal i : signals)
+		{
+			answer ^= hasher(i) + 0x9e3779b9 + (answer << 6) + (answer >> 2);
+		}
+
+		return answer;
+	}
+};
+
+struct SourceStateEquivalence
+{
+	State srcState;
+	Equivalence—lass eqvClass;
+};
+using SourceStatesEquivalence = std::unordered_multimap<States, SourceStateEquivalence, FSMHashFunction>;
 
 template <typename T>
 class FSMTable
@@ -72,27 +96,12 @@ public:
 protected:
 	size_t CommonMinimize();
 	void SetupTransitionTableByEquivalenceClasses();
+	SourceStatesEquivalence::const_iterator CheckForEquivalence(const SourceStatesEquivalence&, const FSMStateTransitions&, const State&);
 	
 	States m_states;
 	Signals m_inputSignals;
 	T m_transitionTable;
 	StateEquivalence—lasses m_eqvClasses;
-};
-
-struct FSMHashFunction
-{
-	size_t operator()(const Signals& signals) const
-	{
-		std::hash<Signal> hasher;
-		size_t answer = 0;
-
-		for (Signal i : signals)
-		{
-			answer ^= hasher(i) + 0x9e3779b9 + (answer << 6) + (answer >> 2);
-		}
-
-		return answer;
-	}
 };
 
 template <typename T>
@@ -153,13 +162,6 @@ inline void FSMTable<T>::RemoveUnreachableStates()
 template <typename T>
 inline size_t FSMTable<T>::CommonMinimize()
 {
-	//new
-	std::unordered_map<Equivalence—lass, std::set<State>> eqvivalenceSets;
-	for (auto& [state, eqvClass] : m_eqvClasses)
-	{
-		eqvivalenceSets[eqvClass].insert(state);
-	}
-
 	// assign aliases to all transitions column-by-column with defined equivalence classes
 	for (auto& [_, transitions] : m_transitionTable)
 	{
@@ -170,25 +172,40 @@ inline size_t FSMTable<T>::CommonMinimize()
 	}
 
 	// form new equivalence classes by states
-	std::unordered_map<States, Equivalence—lass, FSMHashFunction> equivalence—lasses;
+	SourceStatesEquivalence statesEquivalence;
 	Equivalence—lass equivalence—lass = 0;
+	StateEquivalence—lasses newEqvClasses;
 	for (auto& [srcState, transitions] : m_transitionTable)
 	{
-		auto insertResult = equivalence—lasses.emplace(transitions.aliasedStates, equivalence—lass);
-
-		if (insertResult.second)
+		SourceStatesEquivalence::const_iterator eqvClass = statesEquivalence.end();
+		if (statesEquivalence.count(transitions.aliasedStates))
 		{
+			eqvClass = CheckForEquivalence(statesEquivalence, transitions, srcState);
+		}
+
+		if (eqvClass == statesEquivalence.end())
+		{
+			auto insertResult = statesEquivalence.emplace(transitions.aliasedStates, SourceStateEquivalence{ srcState, equivalence—lass });
+			newEqvClasses[srcState] = equivalence—lass;
 			++equivalence—lass;
+		}
+		else
+		{
+			newEqvClasses[srcState] = eqvClass->second.eqvClass;
 		}
 	}
 
-	// save all states with a new equivalence class alias
-	for (auto& [srcState, transitions] : m_transitionTable)
-	{
-		m_eqvClasses[srcState] = equivalence—lasses[transitions.aliasedStates];
-	}
+	m_eqvClasses = newEqvClasses;
 
-	return equivalence—lasses.size();
+	//// save all states with a new equivalence class alias
+	//for (auto& [srcState, transitions] : m_transitionTable)
+	//{
+	//	auto range = statesEquivalence.equal_range(transitions.aliasedStates);
+	//	m_eqvClasses[srcState] = range.first->second.eqvClass;
+	//	statesEquivalence.erase(range.first);
+	//}
+
+	return statesEquivalence.size();
 }
 
 template <typename T>
@@ -235,4 +252,19 @@ inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 	std::for_each(uniqueEqvClasses.begin(), uniqueEqvClasses.end(), [this](const Equivalence—lass& eqvClass) {
 		m_states.push_back(std::to_string(eqvClass));
 	});
+}
+
+template <typename T>
+inline SourceStatesEquivalence::const_iterator FSMTable<T>::CheckForEquivalence(const SourceStatesEquivalence& statesEquivalence, const FSMStateTransitions& transitions, const State& srcState)
+{
+	auto range = statesEquivalence.equal_range(transitions.aliasedStates);
+	for (auto it = range.first; it != range.second; ++it)
+	{
+		if (m_eqvClasses[it->second.srcState] == m_eqvClasses[srcState])
+		{
+			return it;
+		}
+	}
+
+	return statesEquivalence.end();
 }
