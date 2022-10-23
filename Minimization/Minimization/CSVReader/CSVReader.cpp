@@ -29,7 +29,7 @@ MealyTable CSVReader::ReadMealyTable()
 	InitTransitionTableWithStates(lineStream, states, transitionTable);
 
 	std::string tableField;
-	InputSignals inputSignals;
+	Signals inputSignals;
 	while (std::getline(m_inputFile, row))
 	{
 		lineStream.str(row);
@@ -39,9 +39,8 @@ MealyTable CSVReader::ReadMealyTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMETER); ++columnIndex)
 		{
-			State state = RetrieveDestinationState(tableField);
-			Signal outputSignal = RetrieveOutputSignal(tableField);
-			transitionTable[states[columnIndex]].push_back(StateTransition{ state, outputSignal });
+			transitionTable[states[columnIndex]].commonStates.push_back(RetrieveDestinationState(tableField));
+			transitionTable[states[columnIndex]].outputSignals.push_back(RetrieveOutputSignal(tableField));
 		}
 	}
 
@@ -57,7 +56,7 @@ MooreTable CSVReader::ReadMooreTable()
 	std::istringstream lineStream(rawOutputSignals);
 
 	std::string signal;
-	OutputSignals outputSignals;
+	Signals outputSignals;
 	while (std::getline(lineStream, signal, CSV_DELIMETER))
 	{
 		if (!signal.empty())
@@ -76,7 +75,7 @@ MooreTable CSVReader::ReadMooreTable()
 	InitTransitionTableWithStates(lineStream, states, transitionTable);
 
 	std::string tableField;
-	InputSignals inputSignals;
+	Signals inputSignals;
 	while (std::getline(m_inputFile, row))
 	{
 		lineStream.str(row);
@@ -86,7 +85,7 @@ MooreTable CSVReader::ReadMooreTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMETER); ++columnIndex)
 		{
-			transitionTable[states[columnIndex]].push_back(tableField);
+			transitionTable[states[columnIndex]].commonStates.push_back(tableField);
 		}
 	}
 

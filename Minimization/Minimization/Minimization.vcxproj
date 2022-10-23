@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,12 +129,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CSVReader\CSVReader.h" />
+    <ClInclude Include="CSVWriter\CSVWriter.h" />
     <ClInclude Include="Tables\FSMTable.hpp" />
     <ClInclude Include="Tables\MealyTable.h" />
     <ClInclude Include="Tables\MooreTable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CSVReader\CSVReader.cpp" />
+    <ClCompile Include="CSVWriter\CSVWriter.cpp" />
     <ClCompile Include="Minimization.cpp" />
     <ClCompile Include="Tables\MealyTable.cpp" />
     <ClCompile Include="Tables\MooreTable.cpp" />

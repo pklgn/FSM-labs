@@ -2,75 +2,52 @@
 #include <set>
 #include "MooreTable.h"
 
-OutputSignals MooreTable::GetOutputSignals() const
+Signals MooreTable::GetOutputSignals() const
 {
 	return m_outputSignals;
 }
 
-MooreStates MooreTable::GetMooreStates() const
+MooreStateTransitions MooreTable::GetMooreStates() const
 {
 	return m_mooreStates;
 }
 
 void MooreTable::Minimize()
 {
-}
+	std::unordered_map<Signal, Equivalence—lass> equivalence—lasses;
 
-void MooreTable::RemoveUnreachableStates()
-{
-	State inspectedState = m_states.front();
-
-	std::set<State> traversedStates;
-	std::set<State> reachableStates;
-	std::deque<State> statesWave;
-
-	reachableStates.insert(inspectedState);
-
-	for (auto& transitionState : m_transitionTable[inspectedState])
+	size_t equivalence—lass = 0;
+	for (auto& outputSignal : m_outputSignals)
 	{
-		if (inspectedState != transitionState)
+		auto insertResult = equivalence—lasses.emplace(outputSignal, equivalence—lass);
+
+		if (insertResult.second)
 		{
-			statesWave.push_back(transitionState);
-			reachableStates.insert(transitionState);
+			++equivalence—lass;
 		}
 	}
-	traversedStates.insert(inspectedState);
 
-	while (!statesWave.empty())
+	for (auto& [state, outputSignal] : m_mooreStates)
 	{
-		inspectedState = statesWave.front();
-		traversedStates.insert(inspectedState);
-		for (auto& transitionState : m_transitionTable[inspectedState])
-		{
-			if (inspectedState != transitionState)
-			{
-				reachableStates.insert(transitionState);
-			}
-			if (!traversedStates.count(transitionState))
-			{
-				statesWave.push_back(transitionState);
-			}
-			
-		}
-		statesWave.pop_front();
+		m_eqvClasses[state] = equivalence—lasses[outputSignal];
 	}
 
-	auto stateIt = m_states.begin();
-	while (stateIt != m_states.end())
+	size_t prevEqvClassesCount = equivalence—lasses.size();
+	size_t currEqvClassesCount = 0;
+	while (prevEqvClassesCount != currEqvClassesCount)
 	{
-		if (!reachableStates.count(*stateIt))
+		prevEqvClassesCount = currEqvClassesCount;
+		currEqvClassesCount = CommonMinimize();
+	}
+
+	SetupTransitionTableByEquivalenceClasses();
+
+	m_outputSignals.clear();
+	for (auto& [oldState, outputSignal] : m_mooreStates)
+	{
+		if (m_eqvClasses.count(oldState))
 		{
-			m_transitionTable.erase(*stateIt);
-			stateIt = m_states.erase(stateIt);
-			m_outputSignals.erase(m_outputSignals.begin() + std::distance(m_states.begin(), stateIt));
-		}
-		else
-		{
-			++stateIt;
+			m_outputSignals.push_back(outputSignal);
 		}
 	}
-}
-
-void MooreTable::RecursiveMinimize(size_t eqvClassesCount)
-{
 }
