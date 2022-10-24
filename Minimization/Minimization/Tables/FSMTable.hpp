@@ -197,14 +197,6 @@ inline size_t FSMTable<T>::CommonMinimize()
 
 	m_eqvClasses = newEqvClasses;
 
-	//// save all states with a new equivalence class alias
-	//for (auto& [srcState, transitions] : m_transitionTable)
-	//{
-	//	auto range = statesEquivalence.equal_range(transitions.aliasedStates);
-	//	m_eqvClasses[srcState] = range.first->second.eqvClass;
-	//	statesEquivalence.erase(range.first);
-	//}
-
 	return statesEquivalence.size();
 }
 

@@ -21,18 +21,19 @@ public:
 	{
 		if (states.size() != m_states.size())
 		{
-			for (auto it = states.begin(), mIt = m_states.begin(); it != states.end() || mIt != m_states.end();)
+			auto stateIndex = states.size() - 1;
+			auto mStateIndex = m_states.size() - 1;
+			while (stateIndex > 0)
 			{
-				auto zipIndex = std::distance(states.begin(), it);
-				if (*it != m_states[zipIndex])
+				if (states[stateIndex] != m_states[mStateIndex])
 				{
-					m_outputSignals.erase(m_outputSignals.begin() + zipIndex);
-					it = states.erase(it);
+					m_outputSignals.erase(m_outputSignals.begin() + stateIndex);
+					--stateIndex;
 				}
 				else
 				{
-					++it;
-					++mIt;
+					--stateIndex;
+					--mStateIndex;
 				}
 			}
 		}
