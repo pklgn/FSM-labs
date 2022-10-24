@@ -255,7 +255,9 @@ inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 }
 
 template <typename T>
-inline SourceStatesEquivalence::const_iterator FSMTable<T>::CheckForEquivalence(const SourceStatesEquivalence& statesEquivalence, const FSMStateTransitions& transitions, const State& srcState)
+inline SourceStatesEquivalence::const_iterator FSMTable<T>::CheckForEquivalence(const SourceStatesEquivalence& statesEquivalence,
+	const FSMStateTransitions& transitions,
+	const State& srcState)
 {
 	auto range = statesEquivalence.equal_range(transitions.aliasedStates);
 	for (auto it = range.first; it != range.second; ++it)

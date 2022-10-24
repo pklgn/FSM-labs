@@ -19,6 +19,24 @@ public:
 		: FSMTable(states, inputSignals, transitionTable)
 		, m_outputSignals(outputSignals)
 	{
+		if (states.size() != m_states.size())
+		{
+			for (auto it = states.begin(), mIt = m_states.begin(); it != states.end() || mIt != m_states.end();)
+			{
+				auto zipIndex = std::distance(states.begin(), it);
+				if (*it != m_states[zipIndex])
+				{
+					m_outputSignals.erase(m_outputSignals.begin() + zipIndex);
+					it = states.erase(it);
+				}
+				else
+				{
+					++it;
+					++mIt;
+				}
+			}
+		}
+
 		std::transform(m_states.begin(), m_states.end(), m_outputSignals.begin(),
 			std::back_inserter(m_mooreStates),
 			[](const auto& state, const auto& outputSignal) {
