@@ -51,3 +51,26 @@ void MooreTable::Minimize()
 		}
 	}
 }
+
+void MooreTable::RemoveUnreachableOutputSignals(const States& oldStates)
+{
+	/*
+	* passing through the elements from the end because we will always 
+	* have a not deleted first state
+	*/
+	auto oldStateIndex = oldStates.size() - 1;
+	auto currStateIndex = m_states.size() - 1;
+	while (oldStateIndex > 0)
+	{
+		if (oldStates[oldStateIndex] != m_states[currStateIndex])
+		{
+			m_outputSignals.erase(m_outputSignals.begin() + oldStateIndex);
+			--oldStateIndex;
+		}
+		else
+		{
+			--oldStateIndex;
+			--currStateIndex;
+		}
+	}
+}

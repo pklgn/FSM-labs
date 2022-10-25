@@ -21,21 +21,7 @@ public:
 	{
 		if (states.size() != m_states.size())
 		{
-			auto stateIndex = states.size() - 1;
-			auto mStateIndex = m_states.size() - 1;
-			while (stateIndex > 0)
-			{
-				if (states[stateIndex] != m_states[mStateIndex])
-				{
-					m_outputSignals.erase(m_outputSignals.begin() + stateIndex);
-					--stateIndex;
-				}
-				else
-				{
-					--stateIndex;
-					--mStateIndex;
-				}
-			}
+			RemoveUnreachableOutputSignals(states);
 		}
 
 		std::transform(m_states.begin(), m_states.end(), m_outputSignals.begin(),
@@ -51,6 +37,8 @@ public:
 	void Minimize() override;
 
 protected:
+	void RemoveUnreachableOutputSignals(const States&);
+
 	MooreStateTransitions m_mooreStates;
 	Signals m_outputSignals;
 };
