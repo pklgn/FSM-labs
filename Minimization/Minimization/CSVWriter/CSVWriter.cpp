@@ -1,7 +1,7 @@
 #include "CSVWriter.h"
 
-const char CSV_DELIMETER = ';';
-const char MEALY_STATE_DELIMETER = '/';
+const char CSV_DELIMITER = ';';
+const char MEALY_STATE_DELIMITER = '/';
 
 const char STATE_PREFIX = 'q';
 
@@ -22,9 +22,9 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 		m_outputStream << inputSignals[line];
 		for (auto& [state, transitions] : transitionTable)
 		{
-			m_outputStream << CSV_DELIMETER
+			m_outputStream << CSV_DELIMITER
 						   << STATE_PREFIX << transitions.commonStates[line]
-						   << MEALY_STATE_DELIMETER
+						   << MEALY_STATE_DELIMITER
 						   << transitions.outputSignals[line];
 		}
 		m_outputStream << std::endl;
@@ -44,7 +44,7 @@ void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
 		m_outputStream << inputSignals[line];
 		for (auto& [state, transitions] : transitionTable)
 		{
-			m_outputStream << CSV_DELIMETER
+			m_outputStream << CSV_DELIMITER
 						   << STATE_PREFIX << transitions.commonStates[line];
 		}
 		m_outputStream << std::endl;
@@ -55,7 +55,7 @@ void CSVWriter::WriteStatesHeader(const States& states)
 {
 	for (auto& state : states)
 	{
-		m_outputStream << CSV_DELIMETER << STATE_PREFIX + state;
+		m_outputStream << CSV_DELIMITER << STATE_PREFIX + state;
 	}
 	m_outputStream << std::endl;
 }
@@ -64,7 +64,7 @@ void CSVWriter::WriteMooreOutputSignalsHeader(const Signals& outputSignals)
 {
 	for (auto& signal : outputSignals)
 	{
-		m_outputStream << CSV_DELIMETER << signal;
+		m_outputStream << CSV_DELIMITER << signal;
 	}
 	m_outputStream << std::endl;
 }
