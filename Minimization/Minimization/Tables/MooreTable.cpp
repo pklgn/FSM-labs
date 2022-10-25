@@ -16,14 +16,14 @@ void MooreTable::Minimize()
 {
 	std::unordered_map<Signal, EquivalenceClass> equivalenceClasses;
 
-	size_t equivalence—lass = 0;
+	size_t equivalenceClass = 0;
 	for (auto& outputSignal : m_outputSignals)
 	{
-		auto insertResult = equivalenceClasses.emplace(outputSignal, equivalence—lass);
+		auto insertResult = equivalenceClasses.emplace(outputSignal, equivalenceClass);
 
 		if (insertResult.second)
 		{
-			++equivalence—lass;
+			++equivalenceClass;
 		}
 	}
 

@@ -6,25 +6,25 @@
 
 void MealyTable::Minimize()
 {
-	std::unordered_map<Signals, EquivalenceClass, FSMHashFunction> equivalence—lasses;
+	std::unordered_map<Signals, EquivalenceClass, FSMHashFunction> equivalenceClasses;
 
-	size_t equivalence—lass = 0;
+	size_t equivalenceClass = 0;
 	for (auto& [_, transitions] : m_transitionTable)
 	{
-		auto insertResult = equivalence—lasses.emplace(transitions.outputSignals, equivalence—lass);
+		auto insertResult = equivalenceClasses.emplace(transitions.outputSignals, equivalenceClass);
 
 		if (insertResult.second)
 		{
-			++equivalence—lass;
+			++equivalenceClass;
 		}
 	}
 
 	for (auto& [srcState, transitions] : m_transitionTable)
 	{
-		m_eqvClasses[srcState] = equivalence—lasses[transitions.outputSignals];
+		m_eqvClasses[srcState] = equivalenceClasses[transitions.outputSignals];
 	}
 
-	size_t prevEqvClassesCount = equivalence—lasses.size();
+	size_t prevEqvClassesCount = equivalenceClasses.size();
 	size_t currEqvClassesCount = 0;
 	while (prevEqvClassesCount != currEqvClassesCount)
 	{

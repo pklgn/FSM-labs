@@ -16,7 +16,7 @@ using States = std::vector<State>;
 using Signals = std::vector<Signal>;
 
 using EquivalenceClass = size_t;
-using StateEquivalence—lasses = std::unordered_map<State, EquivalenceClass>;
+using StateEquivalenceClasses = std::unordered_map<State, EquivalenceClass>;
 
 struct FSMStateTransitions
 {
@@ -101,7 +101,7 @@ protected:
 	States m_states;
 	Signals m_inputSignals;
 	T m_transitionTable;
-	StateEquivalence—lasses m_eqvClasses;
+	StateEquivalenceClasses m_eqvClasses;
 };
 
 template <typename T>
@@ -173,8 +173,8 @@ inline size_t FSMTable<T>::CommonMinimize()
 
 	// form new equivalence classes by states
 	SourceStatesEquivalence statesEquivalence;
-	EquivalenceClass equivalence—lass = 0;
-	StateEquivalence—lasses newEqvClasses;
+	EquivalenceClass equivalenceClass = 0;
+	StateEquivalenceClasses newEqvClasses;
 	for (auto& [srcState, transitions] : m_transitionTable)
 	{
 		SourceStatesEquivalence::const_iterator eqvClass = statesEquivalence.end();
@@ -185,9 +185,9 @@ inline size_t FSMTable<T>::CommonMinimize()
 
 		if (eqvClass == statesEquivalence.end())
 		{
-			auto insertResult = statesEquivalence.emplace(transitions.aliasedStates, SourceStateEquivalence{ srcState, equivalence—lass });
-			newEqvClasses[srcState] = equivalence—lass;
-			++equivalence—lass;
+			auto insertResult = statesEquivalence.emplace(transitions.aliasedStates, SourceStateEquivalence{ srcState, equivalenceClass });
+			newEqvClasses[srcState] = equivalenceClass;
+			++equivalenceClass;
 		}
 		else
 		{
