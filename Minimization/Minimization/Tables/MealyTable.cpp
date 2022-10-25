@@ -6,7 +6,7 @@
 
 void MealyTable::Minimize()
 {
-	std::unordered_map<Signals, Equivalence—lass, FSMHashFunction> equivalence—lasses;
+	std::unordered_map<Signals, EquivalenceClass, FSMHashFunction> equivalence—lasses;
 
 	size_t equivalence—lass = 0;
 	for (auto& [_, transitions] : m_transitionTable)

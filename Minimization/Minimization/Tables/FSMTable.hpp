@@ -15,8 +15,8 @@ using Signal = std::string;
 using States = std::vector<State>;
 using Signals = std::vector<Signal>;
 
-using Equivalence—lass = size_t;
-using StateEquivalence—lasses = std::unordered_map<State, Equivalence—lass>;
+using EquivalenceClass = size_t;
+using StateEquivalence—lasses = std::unordered_map<State, EquivalenceClass>;
 
 struct FSMStateTransitions
 {
@@ -51,7 +51,7 @@ struct FSMHashFunction
 struct SourceStateEquivalence
 {
 	State srcState;
-	Equivalence—lass eqvClass;
+	EquivalenceClass eqvClass;
 };
 using SourceStatesEquivalence = std::unordered_multimap<States, SourceStateEquivalence, FSMHashFunction>;
 
@@ -173,7 +173,7 @@ inline size_t FSMTable<T>::CommonMinimize()
 
 	// form new equivalence classes by states
 	SourceStatesEquivalence statesEquivalence;
-	Equivalence—lass equivalence—lass = 0;
+	EquivalenceClass equivalence—lass = 0;
 	StateEquivalence—lasses newEqvClasses;
 	for (auto& [srcState, transitions] : m_transitionTable)
 	{
@@ -204,7 +204,7 @@ template <typename T>
 inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 {
 	// remain only one initial state from each equivalence set
-	std::unordered_set<Equivalence—lass> uniqueEqvClasses;
+	std::unordered_set<EquivalenceClass> uniqueEqvClasses;
 	for (auto eqvClassesIt = m_eqvClasses.begin(); eqvClassesIt != m_eqvClasses.end();)
 	{
 		auto insertResult = uniqueEqvClasses.insert(eqvClassesIt->second);
@@ -241,7 +241,7 @@ inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 	}
 
 	m_states.clear();
-	std::for_each(uniqueEqvClasses.begin(), uniqueEqvClasses.end(), [this](const Equivalence—lass& eqvClass) {
+	std::for_each(uniqueEqvClasses.begin(), uniqueEqvClasses.end(), [this](const EquivalenceClass& eqvClass) {
 		m_states.push_back(std::to_string(eqvClass));
 	});
 }

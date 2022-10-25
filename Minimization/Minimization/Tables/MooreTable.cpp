@@ -14,12 +14,12 @@ MooreStateTransitions MooreTable::GetMooreStates() const
 
 void MooreTable::Minimize()
 {
-	std::unordered_map<Signal, Equivalence—lass> equivalence—lasses;
+	std::unordered_map<Signal, EquivalenceClass> equivalenceClasses;
 
 	size_t equivalence—lass = 0;
 	for (auto& outputSignal : m_outputSignals)
 	{
-		auto insertResult = equivalence—lasses.emplace(outputSignal, equivalence—lass);
+		auto insertResult = equivalenceClasses.emplace(outputSignal, equivalence—lass);
 
 		if (insertResult.second)
 		{
@@ -29,10 +29,10 @@ void MooreTable::Minimize()
 
 	for (auto& [state, outputSignal] : m_mooreStates)
 	{
-		m_eqvClasses[state] = equivalence—lasses[outputSignal];
+		m_eqvClasses[state] = equivalenceClasses[outputSignal];
 	}
 
-	size_t prevEqvClassesCount = equivalence—lasses.size();
+	size_t prevEqvClassesCount = equivalenceClasses.size();
 	size_t currEqvClassesCount = 0;
 	while (prevEqvClassesCount != currEqvClassesCount)
 	{
