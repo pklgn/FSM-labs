@@ -32,15 +32,7 @@ void MooreTable::Minimize()
 		m_eqvClasses[state] = equivalenceClasses[outputSignal];
 	}
 
-	size_t prevEqvClassesCount = equivalenceClasses.size();
-	size_t currEqvClassesCount = 0;
-	while (prevEqvClassesCount != currEqvClassesCount)
-	{
-		prevEqvClassesCount = currEqvClassesCount;
-		currEqvClassesCount = CommonMinimize();
-	}
-
-	SetupTransitionTableByEquivalenceClasses();
+	CompleteCommonMinimization(equivalenceClasses.size());
 
 	m_outputSignals.clear();
 	for (auto& [oldState, outputSignal] : m_mooreStates)

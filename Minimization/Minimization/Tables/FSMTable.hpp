@@ -96,6 +96,7 @@ public:
 protected:
 	size_t CommonMinimize();
 	void SetupTransitionTableByEquivalenceClasses();
+	void CompleteCommonMinimization(size_t prevEqvClassesCount);
 	SourceStatesEquivalence::const_iterator CheckForEquivalence(const SourceStatesEquivalence&, const FSMStateTransitions&, const State&);
 	
 	States m_states;
@@ -244,6 +245,19 @@ inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 	std::for_each(uniqueEqvClasses.begin(), uniqueEqvClasses.end(), [this](const EquivalenceClass& eqvClass) {
 		m_states.push_back(std::to_string(eqvClass));
 	});
+}
+
+template <typename T>
+inline void FSMTable<T>::CompleteCommonMinimization(size_t prevEqvClassesCount)
+{
+	size_t currEqvClassesCount = 0;
+	while (prevEqvClassesCount != currEqvClassesCount)
+	{
+		prevEqvClassesCount = currEqvClassesCount;
+		currEqvClassesCount = CommonMinimize();
+	}
+
+	SetupTransitionTableByEquivalenceClasses();
 }
 
 template <typename T>

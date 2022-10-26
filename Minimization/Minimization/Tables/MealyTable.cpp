@@ -24,14 +24,6 @@ void MealyTable::Minimize()
 		m_eqvClasses[srcState] = equivalenceClasses[transitions.outputSignals];
 	}
 
-	size_t prevEqvClassesCount = equivalenceClasses.size();
-	size_t currEqvClassesCount = 0;
-	while (prevEqvClassesCount != currEqvClassesCount)
-	{
-		prevEqvClassesCount = currEqvClassesCount;
-		currEqvClassesCount = CommonMinimize();
-	}
-
-	SetupTransitionTableByEquivalenceClasses();
+	CompleteCommonMinimization(equivalenceClasses.size());
 }
 
