@@ -181,6 +181,8 @@ inline size_t FSMTable<T>::CommonMinimize()
 		SourceStatesEquivalence::const_iterator eqvClass = statesEquivalence.end();
 		if (statesEquivalence.count(transitions.aliasedStates))
 		{
+			//check the condition that we do not combine the current state transitions
+			//into one equivalence class if they were originally in different equivalence classes
 			eqvClass = CheckForEquivalence(statesEquivalence, transitions, srcState);
 		}
 

@@ -12,7 +12,9 @@ CSVWriter::CSVWriter(const std::string& outputFileName)
 
 void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 {
-	WriteStatesHeader(mealyTable.GetStates());
+	auto states = mealyTable.GetStates();
+	std::sort(states.begin(), states.end());
+	WriteStatesHeader(states);
 
 	auto inputSignals = mealyTable.GetInputSignals();
 	auto lineCount = inputSignals.size();
@@ -20,12 +22,12 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 	for (auto line = 0; line < lineCount; ++line)
 	{
 		m_outputStream << inputSignals[line];
-		for (auto& [state, transitions] : transitionTable)
+		for (auto& state: states)
 		{
 			m_outputStream << CSV_DELIMITER
-						   << STATE_PREFIX << transitions.commonStates[line]
+						   << STATE_PREFIX << transitionTable[state].commonStates[line]
 						   << MEALY_STATE_DELIMITER
-						   << transitions.outputSignals[line];
+						   << transitionTable[state].outputSignals[line];
 		}
 		m_outputStream << std::endl;
 	}
@@ -34,7 +36,9 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
 {
 	WriteMooreOutputSignalsHeader(mooreTable.GetOutputSignals());
-	WriteStatesHeader(mooreTable.GetStates());
+	auto states = mooreTable.GetStates();
+	std::sort(states.begin(), states.end());
+	WriteStatesHeader(states);
 
 	auto inputSignals = mooreTable.GetInputSignals();
 	auto lineCount = inputSignals.size();
@@ -42,10 +46,10 @@ void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
 	for (auto line = 0; line < lineCount; ++line)
 	{
 		m_outputStream << inputSignals[line];
-		for (auto& [state, transitions] : transitionTable)
+		for (auto& state: states)
 		{
 			m_outputStream << CSV_DELIMITER
-						   << STATE_PREFIX << transitions.commonStates[line];
+						   << STATE_PREFIX << transitionTable[state].commonStates[line];
 		}
 		m_outputStream << std::endl;
 	}
