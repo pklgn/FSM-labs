@@ -13,5 +13,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "common/StringCommon.h"
 
 #endif //PCH_H

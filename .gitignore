@@ -401,5 +401,6 @@ FodyWeavers.xsd
 out/
 build/
 
-# Test .txt files in proj dir
+# Test .txt and .csv files in proj dir
 *.txt
+*.csv

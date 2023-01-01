@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\StringCommon.cpp" />
     <ClCompile Include="CSVReader\CSVReader.cpp" />
     <ClCompile Include="CSVWriter\CSVWriter.cpp" />
     <ClCompile Include="Determination.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Tables\MooreTable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\StringCommon.h" />
     <ClInclude Include="CSVReader\CSVReader.h" />
     <ClInclude Include="CSVWriter\CSVWriter.h" />
     <ClInclude Include="RegularGrammar\Reader\RegularGrammarReader.h" />

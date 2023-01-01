@@ -36,6 +36,9 @@
     <ClCompile Include="Determination.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="common\StringCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVReader\CSVReader.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\StringCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
