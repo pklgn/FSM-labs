@@ -400,3 +400,6 @@ FodyWeavers.xsd
 # Cmake files
 out/
 build/
+
+# Test .txt files in proj dir
+*.txt

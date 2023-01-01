@@ -76,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,6 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,12 +131,18 @@
   <ItemGroup>
     <ClCompile Include="CSVReader\CSVReader.cpp" />
     <ClCompile Include="CSVWriter\CSVWriter.cpp" />
+    <ClCompile Include="Determination.cpp" />
+    <ClCompile Include="RegularGrammar\Reader\RegularGrammarReader.cpp" />
+    <ClCompile Include="pch.cpp" />
     <ClCompile Include="Tables\MealyTable.cpp" />
     <ClCompile Include="Tables\MooreTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVReader\CSVReader.h" />
     <ClInclude Include="CSVWriter\CSVWriter.h" />
+    <ClInclude Include="RegularGrammar\Reader\RegularGrammarReader.h" />
+    <ClInclude Include="RegularGrammar\common\GrammarTypes.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="Tables\FSMTable.hpp" />
     <ClInclude Include="Tables\MealyTable.h" />
     <ClInclude Include="Tables\MooreTable.h" />
