@@ -4,14 +4,10 @@
 namespace RegularGrammar
 {
 using Terminal = char;
+using Terminals = std::set<Terminal>;
 using NonTerminal = char;
-struct ProductionRule
-{
-	using RightPart = std::string;
-	using RightParts = std::vector<RightPart>;
+using NonTerminals = std::vector<NonTerminal>;
 
-	NonTerminal leftPart;
-	RightParts rightParts;
-};
-using ProductionRules = std::vector<ProductionRule>;
+const Terminal NO_TERMINAL = ' ';
+const Terminal NO_NONTERMINAL = ' ';
 } // namespace Grammar
