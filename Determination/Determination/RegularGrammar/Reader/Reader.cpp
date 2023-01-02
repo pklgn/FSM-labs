@@ -1,5 +1,6 @@
 #include "../../pch.h"
-#include "RegularGrammarReader.h"
+#include "../ProductionRules/ProductionRules.h"
+#include "Reader.h"
 
 namespace RegularGrammar
 {
@@ -9,14 +10,15 @@ const std::string INCOMPLETE_RIGHT_PART_MESSAGE = "Incomplete right part of the 
 const std::string RULE_PARTS_SEPARATOR = "->";
 const char RULE_RIGHT_PARTS_SEPARATOR = '|';
 
-Reader::Reader(std::istream& input)
+Reader::Reader(GrammarType type, std::istream& input)
 	: m_inputStream(input)
+	, m_grammarType(type)
 {
 }
 
 ProductionRules Reader::ReadProductionRules()
 {
-	ProductionRules productionRules;
+	std::vector<ProductionRule> productionRules;
 
 	std::string ruleSeparator;
 	while (m_inputStream.good())
@@ -37,31 +39,32 @@ ProductionRules Reader::ReadProductionRules()
 		productionRules.push_back(rule);
 	}
 
-	return productionRules;
+	return ProductionRules(m_grammarType, productionRules);
 }
 
-using RawRightParts = std::string;
 void Reader::ReadProductionRuleRightParts(ProductionRule::RightParts& rightParts)
 {
+	using RawRightParts = std::string;
 	RawRightParts rawRightParts;
 	std::getline(m_inputStream, rawRightParts);
 
 	size_t last = 0;
 	size_t next = 0;
-	ProductionRule::RightPart rightPart;
+	RawRightPart rawRightPart;
 	while ((next = rawRightParts.find(RULE_RIGHT_PARTS_SEPARATOR, last	)) != std::string::npos)
 	{
-		rightPart = rawRightParts.substr(last, next - last);
-		rightParts.push_back(Trim(rightPart));
+		rawRightPart = Trim(rawRightParts.substr(last, next - last));
+
+		rightParts.push_back(RightPart(m_grammarType, rawRightPart));
 		last = next + 1;
 	}
-	rightPart = rawRightParts.substr(last);
-	if (rightPart == "")
+	rawRightPart = Trim(rawRightParts.substr(last));
+	if (rawRightPart == "")
 	{
 		std::cout << INCOMPLETE_RIGHT_PART_MESSAGE << '\n';
 		return;
 	}
 
-	rightParts.push_back(Trim(rightPart));
+	rightParts.push_back(RightPart(m_grammarType, rawRightPart));
 }
 } // namespace RegularGrammar
