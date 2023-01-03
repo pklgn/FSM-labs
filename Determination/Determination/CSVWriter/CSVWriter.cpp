@@ -3,14 +3,14 @@
 const char CSV_DELIMITER = ';';
 const char MEALY_STATE_DELIMITER = '/';
 
-const char STATE_PREFIX = 'q';
+const std::string CSVWriter::STATE_PREFIX = "q";
 
 CSVWriter::CSVWriter(const std::string& outputFileName)
 	: m_outputStream(outputFileName)
 {
 }
 
-void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
+void CSVWriter::WriteMealyTable(const MealyTable& mealyTable, const std::string& prefix)
 {
 	auto states = mealyTable.GetStates();
 	std::sort(states.begin(), states.end());
@@ -25,7 +25,7 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 		for (auto& state: states)
 		{
 			m_outputStream << CSV_DELIMITER
-						   << STATE_PREFIX << transitionTable[state].commonStates[line]
+						   << prefix << transitionTable[state].commonStates[line]
 						   << MEALY_STATE_DELIMITER
 						   << transitionTable[state].outputSignals[line];
 		}
@@ -33,12 +33,12 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable)
 	}
 }
 
-void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
+void CSVWriter::WriteMooreTable(const MooreTable& mooreTable, const std::string& prefix)
 {
 	WriteMooreOutputSignalsHeader(mooreTable.GetOutputSignals());
 	auto states = mooreTable.GetStates();
 	std::sort(states.begin(), states.end());
-	WriteStatesHeader(states);
+	WriteStatesHeader(states, prefix);
 
 	auto inputSignals = mooreTable.GetInputSignals();
 	auto lineCount = inputSignals.size();
@@ -49,17 +49,17 @@ void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
 		for (auto& state: states)
 		{
 			m_outputStream << CSV_DELIMITER
-						   << STATE_PREFIX << transitionTable[state].commonStates[line];
+						   << prefix << transitionTable[state].commonStates[line];
 		}
 		m_outputStream << std::endl;
 	}
 }
 
-void CSVWriter::WriteStatesHeader(const States& states)
+void CSVWriter::WriteStatesHeader(const States& states, const std::string& prefix)
 {
 	for (auto& state : states)
 	{
-		m_outputStream << CSV_DELIMITER << STATE_PREFIX + state;
+		m_outputStream << CSV_DELIMITER << prefix + state;
 	}
 	m_outputStream << std::endl;
 }
