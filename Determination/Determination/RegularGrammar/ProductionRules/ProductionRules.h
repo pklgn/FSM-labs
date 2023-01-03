@@ -16,8 +16,14 @@ public:
 	MooreTable Determine() const;
 
 private:
-	MooreTable DetermineLeftSide() const;
-	MooreTable DetermineRightSide() const;
+	using SrcTransitionStates = std::unordered_set<NonTerminal>;
+	using DstTransitionStates = std::unordered_set<NonTerminal>;
+	SrcTransitionStates ChooseStartingStates() const;
+	NonTerminal ChooseFinishingState() const;
+	void FormLeftSideDstStates(const SrcTransitionStates& srcStates,
+		std::unordered_map<Terminal, DstTransitionStates>& dstStatess) const;
+	void FormRightSideDstStates(const SrcTransitionStates& srcStates,
+		std::unordered_map<Terminal, DstTransitionStates>& dstStates) const;
 
 	GrammarType m_grammarType;
 	Terminals m_terminals;
