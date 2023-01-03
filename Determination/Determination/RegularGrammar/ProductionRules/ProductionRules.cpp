@@ -4,7 +4,7 @@
 namespace RegularGrammar
 {
 const NonTerminal INITIAL_STATE = 'H';
-const Signal FINISH_SIGNAL = "F";
+const Signal FINISHING_SIGNAL = "F";
 const Signal NO_SIGNAL = "";
 
 RegularGrammar::ProductionRules::ProductionRules(GrammarType type, const std::vector<ProductionRule>& rules)
@@ -44,70 +44,70 @@ MooreTable ProductionRules::Determine() const
 	}
 }
 
-using SourceTransitionStates = std::unordered_set<NonTerminal>;
-void AppendOutputSignal(Signals& outputSignals, NonTerminal finishNonTerminal, const SourceTransitionStates& transitions)
+using SrcTransitionStates = std::unordered_set<NonTerminal>;
+void AppendOutputSignal(Signals& outputSignals, NonTerminal finishingState, const SrcTransitionStates& srcStates)
 {
-	if (transitions.contains(finishNonTerminal))
+	if (srcStates.contains(finishingState))
 	{
-		outputSignals.push_back(FINISH_SIGNAL);
+		outputSignals.push_back(FINISHING_SIGNAL);
+		return;
 	}
-	else
-	{
-		outputSignals.push_back(NO_SIGNAL);
-	}
+	
+	outputSignals.push_back(NO_SIGNAL);
 }
 
 MooreTable ProductionRules::DetermineLeftSide() const
 {
-	std::deque<SourceTransitionStates> nonTerminalsToDetermine;
-	nonTerminalsToDetermine.push_back({ NO_NONTERMINAL });
+	std::deque<SrcTransitionStates> statesToDetermine;
+	statesToDetermine.push_back({ NO_NONTERMINAL });
 
-	std::unordered_map<Terminal, SourceTransitionStates> terminalTransitions;
+	using DstTransitionStates = std::unordered_set<NonTerminal>;
+	std::unordered_map<Terminal, DstTransitionStates> dstStates;
 	for (auto&& terminal : m_terminals)
 	{
-		terminalTransitions[terminal];
+		dstStates[terminal];
 	}
 
 	States states;
 	Signals outputSignals;
 	MooreTransitionTable transitionTable;
 	std::unordered_set<State> viewedStates;
-	auto finishNonTerminal = m_nonTerminals.front();
-
-	while (!nonTerminalsToDetermine.empty())
+	auto finishingState = m_nonTerminals.front();
+	while (!statesToDetermine.empty())
 	{
-		FSMStateTransitions nonTerminalTransitions;
-		SourceTransitionStates nonTerminals = nonTerminalsToDetermine.front();
-		viewedStates.insert(Join<SourceTransitionStates::const_iterator>(nonTerminals.begin(), nonTerminals.end()));
-
-		AppendOutputSignal(outputSignals, finishNonTerminal, nonTerminals);
+		SrcTransitionStates srcStates = statesToDetermine.front();
+		viewedStates.insert(Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end()));
+		AppendOutputSignal(outputSignals, finishingState, srcStates);
 
 		for (auto&& [leftPart, rightParts] : m_rules)
 		{
 			for (auto&& rightPart : rightParts)
 			{
-				if (nonTerminals.contains(rightPart.nonTerminal))
+				if (srcStates.contains(rightPart.nonTerminal))
 				{
-					terminalTransitions[rightPart.terminal].insert(leftPart);
+					dstStates[rightPart.terminal].insert(leftPart);
 				}
 			}
 		}
+
+		FSMStateTransitions stateTransitions;
 		std::for_each(m_terminals.begin(), m_terminals.end(), [&](Terminal terminal) {
-			auto& transitions = terminalTransitions[terminal];
-			auto transitionsString = Join<SourceTransitionStates::iterator>(transitions.begin(), transitions.end());
-			nonTerminalTransitions.commonStates.push_back(transitionsString);
-			if (!viewedStates.contains(transitionsString) && !transitionsString.empty())
+			auto& transitions = dstStates[terminal];
+			auto transitionsStr = Join<SrcTransitionStates::const_iterator>(transitions.begin(), transitions.end());
+			stateTransitions.commonStates.push_back(transitionsStr);
+			if (!transitionsStr.empty() &&
+				!viewedStates.contains(transitionsStr))
 			{
-				nonTerminalsToDetermine.push_back(transitions);
+				statesToDetermine.push_back(transitions);
 			}
 		});
-		State state = Join<SourceTransitionStates::iterator>(nonTerminals.begin(), nonTerminals.end());
-		transitionTable.emplace(state, nonTerminalTransitions);
+		State state = Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end());
+		transitionTable.emplace(state, stateTransitions);
 		states.push_back(state);
 
-		nonTerminalsToDetermine.pop_front();
+		statesToDetermine.pop_front();
 
-		for (auto&& terminal : terminalTransitions)
+		for (auto&& terminal : dstStates)
 		{
 			terminal.second.clear();
 		}
@@ -121,64 +121,61 @@ MooreTable ProductionRules::DetermineLeftSide() const
 
 MooreTable ProductionRules::DetermineRightSide() const
 {
-	MooreTransitionTable transitionTable;
-	using NonTerminalsTransitions = std::unordered_set<NonTerminal>;
-	std::deque<NonTerminalsTransitions> nonTerminalsToDetermine;
-	// add the initial state to start filling the table
-	nonTerminalsToDetermine.push_back({ NO_NONTERMINAL });
+	std::deque<SrcTransitionStates> statesToDetermine;
+	statesToDetermine.push_back({ m_nonTerminals.front() });
 
-	// init container to store dst nonTerminals transitions
-	std::unordered_map<Terminal, NonTerminalsTransitions> terminalTransitions;
+	using DstTransitionStates = std::unordered_set<NonTerminal>;
+	std::unordered_map<Terminal, DstTransitionStates> dstStates;
 	for (auto&& terminal : m_terminals)
 	{
-		terminalTransitions[terminal];
+		dstStates[terminal];
 	}
 
-	std::unordered_set<State> viewedStates;
-	Signals outputSignals;
-	auto finishNonTerminal = m_nonTerminals.front();
 	States states;
-
-	while (!nonTerminalsToDetermine.empty())
+	Signals outputSignals;
+	MooreTransitionTable transitionTable;
+	std::unordered_set<State> viewedStates;
+	auto finishingState = INITIAL_STATE;
+	while (!statesToDetermine.empty())
 	{
-		FSMStateTransitions nonTerminalTransitions;
-		NonTerminalsTransitions nonTerminals = nonTerminalsToDetermine.front();
-		viewedStates.insert(Join<NonTerminalsTransitions::const_iterator>(nonTerminals.begin(), nonTerminals.end()));
-		if (nonTerminals.contains(finishNonTerminal))
-		{
-			outputSignals.push_back(FINISH_SIGNAL);
-		}
-		else
-		{
-			outputSignals.push_back(NO_SIGNAL);
-		}
+		SrcTransitionStates srcStates = statesToDetermine.front();
+		viewedStates.insert(Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end()));
+		AppendOutputSignal(outputSignals, finishingState, srcStates);
 
 		for (auto&& [leftPart, rightParts] : m_rules)
 		{
 			for (auto&& rightPart : rightParts)
 			{
-				if (nonTerminals.contains(rightPart.nonTerminal))
+				if (srcStates.contains(leftPart))
 				{
-					terminalTransitions[rightPart.terminal].insert(leftPart);
+					auto dstState = (rightPart.nonTerminal == NO_NONTERMINAL)
+						? INITIAL_STATE
+						: rightPart.nonTerminal;
+					dstStates[rightPart.terminal].insert(dstState);
 				}
 			}
 		}
+
+		FSMStateTransitions stateTransitions;
 		std::for_each(m_terminals.begin(), m_terminals.end(), [&](Terminal terminal) {
-			auto& transitions = terminalTransitions[terminal];
-			auto transitionsString = Join<NonTerminalsTransitions::iterator>(transitions.begin(), transitions.end());
-			nonTerminalTransitions.commonStates.push_back(transitionsString);
-			if (!viewedStates.contains(transitionsString) && !transitionsString.empty())
+			auto& transitions = dstStates[terminal];
+			auto transitionsStr = Join<SrcTransitionStates::const_iterator>(transitions.begin(), transitions.end());
+			std::sort(transitionsStr.begin(), transitionsStr.end());
+			stateTransitions.commonStates.push_back(transitionsStr);
+			if (!transitionsStr.empty() && !viewedStates.contains(transitionsStr))
 			{
-				nonTerminalsToDetermine.push_back(transitions);
+				statesToDetermine.push_back(transitions);
 			}
+			viewedStates.insert(transitionsStr);
 		});
-		State state = Join<NonTerminalsTransitions::iterator>(nonTerminals.begin(), nonTerminals.end());
-		transitionTable.emplace(state, nonTerminalTransitions);
+		State state = Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end());
+		std::sort(state.begin(), state.end());
+		transitionTable.emplace(state, stateTransitions);
 		states.push_back(state);
 
-		nonTerminalsToDetermine.pop_front();
+		statesToDetermine.pop_front();
 
-		for (auto&& terminal : terminalTransitions)
+		for (auto&& terminal : dstStates)
 		{
 			terminal.second.clear();
 		}
