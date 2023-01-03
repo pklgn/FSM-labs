@@ -9,3 +9,11 @@ std::string Trim(const std::string& str)
 
 	return result;
 }
+
+std::string Join(const std::vector<std::string> values)
+{
+	std::stringstream buffer;
+	std::copy(values.begin(), values.end(), std::ostream_iterator<std::string>(buffer));
+
+	return buffer.str();
+}
