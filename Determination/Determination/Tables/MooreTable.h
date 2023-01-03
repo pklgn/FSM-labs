@@ -36,6 +36,8 @@ public:
 
 	void Minimize() override;
 
+	void RenameStates(const std::string& prefix = "S");
+
 protected:
 	void RemoveUnreachableOutputSignals(const States&);
 

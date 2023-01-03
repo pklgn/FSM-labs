@@ -1,6 +1,11 @@
 #include <deque>
 #include <set>
+#include <iostream>
 #include "MooreTable.h"
+
+const State NO_STATE = "";
+const State INITIAL_STATE = "H";
+const State NO_STATE_VISIBLE = "-";
 
 Signals MooreTable::GetOutputSignals() const
 {
@@ -42,6 +47,48 @@ void MooreTable::Minimize()
 			m_outputSignals.push_back(outputSignal);
 		}
 	}
+}
+
+void MooreTable::RenameStates(const std::string& prefix)
+{
+	std::unordered_map<State, State> renamedStates;
+	size_t index = 0;
+	for (auto&& state : m_states)
+	{
+		if (state == " ")
+		{
+			renamedStates.emplace(state, INITIAL_STATE);
+			std::cout << "Added initial state "
+					  << renamedStates[state] << '\n';
+		}
+		else
+		{
+			renamedStates.emplace(state, prefix + std::to_string(index));
+			std::cout << renamedStates[state]
+					  << " = "
+					  << state << '\n';
+			++index;
+		}
+		state = renamedStates[state];
+	}
+
+	MooreTransitionTable renamedTransitionTable;
+	for (auto&& [srcState, transitions] : m_transitionTable)
+	{
+		for (auto&& state : transitions.commonStates)
+		{
+			if (state == NO_STATE)
+			{
+				state = NO_STATE_VISIBLE;
+			}
+			else
+			{
+				state = renamedStates[state];
+			}
+		}
+		renamedTransitionTable[renamedStates[srcState]] = transitions;
+	}
+	m_transitionTable = renamedTransitionTable;
 }
 
 void MooreTable::RemoveUnreachableOutputSignals(const States& oldStates)
