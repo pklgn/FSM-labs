@@ -1,8 +1,10 @@
 #include <sstream>
 #include "CSVReader.h"
+#include "../Common/StringCommon.h"
 
 const char CSV_DELIMITER = ';';
 const char MEALY_STATE_DELIMITER = '/';
+const char DST_STATE_DELIMITER = ',';
 
 template <typename T>
 void InitTransitionTableWithStates(std::istringstream& iss, States& states, T& transitionTable);
@@ -39,7 +41,7 @@ MealyTable CSVReader::ReadMealyTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMITER); ++columnIndex)
 		{
-			transitionTable[states[columnIndex]].commonStates.push_back(RetrieveDestinationState(tableField));
+			transitionTable[states[columnIndex]].commonStates.push_back({ RetrieveDestinationState(tableField) });
 			transitionTable[states[columnIndex]].outputSignals.push_back(RetrieveOutputSignal(tableField));
 		}
 	}
@@ -47,6 +49,24 @@ MealyTable CSVReader::ReadMealyTable()
 	MealyTable mealyTable{ states, inputSignals, transitionTable };
 
 	return mealyTable;
+}
+
+std::vector<State> ParseDstStates(const std::string& rawDstStates)
+{
+	size_t last = 0;
+	size_t next = 0;
+	State state;
+	std::vector<State> dstStates;
+	while ((next = rawDstStates.find(DST_STATE_DELIMITER, last)) != std::string::npos)
+	{
+		state = Trim(rawDstStates.substr(last, next - last));
+
+		dstStates.push_back(state);
+		last = next + 1;
+	}
+	dstStates.push_back(Trim(rawDstStates.substr(last)));
+
+	return dstStates;
 }
 
 MooreTable CSVReader::ReadMooreTable()
@@ -85,7 +105,7 @@ MooreTable CSVReader::ReadMooreTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMITER); ++columnIndex)
 		{
-			transitionTable[states[columnIndex]].commonStates.push_back(tableField);
+			transitionTable[states[columnIndex]].commonStates.push_back(ParseDstStates(tableField));
 		}
 	}
 

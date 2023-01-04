@@ -75,20 +75,29 @@ void MooreTable::RenameStates(const std::string& prefix)
 	MooreTransitionTable renamedTransitionTable;
 	for (auto&& [srcState, transitions] : m_transitionTable)
 	{
-		for (auto&& state : transitions.commonStates)
+		for (auto&& states : transitions.commonStates)
 		{
-			if (state == NO_STATE)
+			for (auto&& state : states)
 			{
-				state = NO_STATE_VISIBLE;
-			}
-			else
-			{
-				state = renamedStates[state];
+				if (state == NO_STATE)
+				{
+					state = NO_STATE_VISIBLE;
+				}
+				else
+				{
+					state = renamedStates[state];
+				}
 			}
 		}
 		renamedTransitionTable[renamedStates[srcState]] = transitions;
 	}
 	m_transitionTable = renamedTransitionTable;
+}
+
+void MooreTable::Determine()
+{
+	//TUDU найти все замыкани€ и сохранить информацию о них
+	//TUDU
 }
 
 void MooreTable::RemoveUnreachableOutputSignals(const States& oldStates)

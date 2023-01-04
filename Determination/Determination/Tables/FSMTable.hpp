@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
+#include <numeric>
 
 using State = std::string;
 using Signal = std::string;
@@ -18,10 +19,11 @@ using Signals = std::vector<Signal>;
 using EquivalenceClass = size_t;
 using StateEquivalenceClasses = std::unordered_map<State, EquivalenceClass>;
 
+using MultiStates = std::vector<States>;
 struct FSMStateTransitions
 {
-	States commonStates;
-	States aliasedStates;
+	MultiStates commonStates;
+	MultiStates aliasedStates;
 };
 
 struct MealyStateTransitions : FSMStateTransitions
@@ -116,12 +118,15 @@ inline void FSMTable<T>::RemoveUnreachableStates()
 
 	reachableStates.insert(inspectedState);
 
-	for (auto& state : m_transitionTable[inspectedState].commonStates)
+	for (auto& states : m_transitionTable[inspectedState].commonStates)
 	{
-		if (inspectedState != state)
+		for (auto& state : states)
 		{
-			statesWave.push_back(state);
-			reachableStates.insert(state);
+			if (inspectedState != state)
+			{
+				statesWave.push_back(state);
+				reachableStates.insert(state);
+			}
 		}
 	}
 	traversedStates.insert(inspectedState);
@@ -131,15 +136,18 @@ inline void FSMTable<T>::RemoveUnreachableStates()
 		inspectedState = statesWave.front();
 		traversedStates.insert(inspectedState);
 
-		for (auto& transitionState : m_transitionTable[inspectedState].commonStates)
+		for (auto& transitionStates : m_transitionTable[inspectedState].commonStates)
 		{
-			if (inspectedState != transitionState)
+			for (auto& transitionState : transitionStates)
 			{
-				reachableStates.insert(transitionState);
-			}
-			if (!traversedStates.count(transitionState))
-			{
-				statesWave.push_back(transitionState);
+				if (inspectedState != transitionState)
+				{
+					reachableStates.insert(transitionState);
+				}
+				if (!traversedStates.count(transitionState))
+				{
+					statesWave.push_back(transitionState);
+				}
 			}
 		}
 		statesWave.pop_front();
@@ -168,7 +176,8 @@ inline size_t FSMTable<T>::CommonMinimize()
 	{
 		for (size_t inputSignal = 0; inputSignal < m_inputSignals.size(); ++inputSignal)
 		{
-			transitions.aliasedStates[inputSignal] = std::to_string(m_eqvClasses[transitions.commonStates[inputSignal]]);
+			auto& currStates = transitions.commonStates[inputSignal];
+			transitions.aliasedStates[inputSignal] = { std::to_string(m_eqvClasses[std::accumulate(currStates.begin(), currStates.end(), std::string(""))]) };
 		}
 	}
 
@@ -179,7 +188,10 @@ inline size_t FSMTable<T>::CommonMinimize()
 	for (auto& [srcState, transitions] : m_transitionTable)
 	{
 		SourceStatesEquivalence::const_iterator eqvClass = statesEquivalence.end();
-		if (statesEquivalence.count(transitions.aliasedStates))
+		States statesToCheck;
+		std::for_each(transitions.aliasedStates.begin(), transitions.aliasedStates.end(),
+			[&](const States& currStates) { statesToCheck.push_back(std::accumulate(currStates.begin(), currStates.end(), std::string(""))); });
+		if (statesEquivalence.count(statesToCheck))
 		{
 			//check the condition that we do not combine the current state transitions
 			//into one equivalence class if they were originally in different equivalence classes
@@ -188,7 +200,10 @@ inline size_t FSMTable<T>::CommonMinimize()
 
 		if (eqvClass == statesEquivalence.end())
 		{
-			auto insertResult = statesEquivalence.emplace(transitions.aliasedStates, SourceStateEquivalence{ srcState, equivalenceClass });
+			States aliasedStates;
+			std::for_each(transitions.aliasedStates.begin(), transitions.aliasedStates.end(),
+				[&](const States& currStates) { aliasedStates.push_back(std::accumulate(currStates.begin(), currStates.end(), std::string(""))); });
+			auto insertResult = statesEquivalence.emplace(aliasedStates, SourceStateEquivalence{ srcState, equivalenceClass });
 			newEqvClasses[srcState] = equivalenceClass;
 			++equivalenceClass;
 		}
@@ -267,7 +282,10 @@ inline SourceStatesEquivalence::const_iterator FSMTable<T>::CheckForEquivalence(
 	const FSMStateTransitions& transitions,
 	const State& srcState)
 {
-	auto range = statesEquivalence.equal_range(transitions.aliasedStates);
+	States statesToCheck;
+	std::for_each(transitions.aliasedStates.begin(), transitions.aliasedStates.end(),
+		[&](const States& currStates) { statesToCheck.push_back(std::accumulate(currStates.begin(), currStates.end(), std::string(""))); });
+	auto range = statesEquivalence.equal_range(statesToCheck);
 	for (auto it = range.first; it != range.second; ++it)
 	{
 		if (m_eqvClasses[it->second.srcState] == m_eqvClasses[srcState])

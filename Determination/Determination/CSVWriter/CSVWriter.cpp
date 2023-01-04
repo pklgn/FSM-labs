@@ -1,3 +1,4 @@
+#include <numeric>
 #include "CSVWriter.h"
 
 const char CSV_DELIMITER = ';';
@@ -24,8 +25,9 @@ void CSVWriter::WriteMealyTable(const MealyTable& mealyTable, const std::string&
 		m_outputStream << inputSignals[line];
 		for (auto& state: states)
 		{
+			auto&& currStates = transitionTable[state].commonStates[line];
 			m_outputStream << CSV_DELIMITER
-						   << prefix << transitionTable[state].commonStates[line]
+						   << prefix << std::accumulate(currStates.begin(), currStates.end(), std::string(""))
 						   << MEALY_STATE_DELIMITER
 						   << transitionTable[state].outputSignals[line];
 		}
@@ -48,8 +50,9 @@ void CSVWriter::WriteMooreTable(const MooreTable& mooreTable, const std::string&
 		m_outputStream << inputSignals[line];
 		for (auto& state: states)
 		{
+			auto&& currStates = transitionTable[state].commonStates[line];
 			m_outputStream << CSV_DELIMITER
-						   << prefix << transitionTable[state].commonStates[line];
+						   << prefix << std::accumulate(currStates.begin(), currStates.end(), std::string(""));
 		}
 		m_outputStream << std::endl;
 	}

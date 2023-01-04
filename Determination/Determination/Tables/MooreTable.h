@@ -38,6 +38,8 @@ public:
 
 	void RenameStates(const std::string& prefix = "S");
 
+	void Determine();
+
 protected:
 	void RemoveUnreachableOutputSignals(const States&);
 

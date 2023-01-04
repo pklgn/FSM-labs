@@ -51,7 +51,7 @@ void Reader::ReadProductionRuleRightParts(ProductionRule::RightParts& rightParts
 	size_t last = 0;
 	size_t next = 0;
 	RawRightPart rawRightPart;
-	while ((next = rawRightParts.find(RULE_RIGHT_PARTS_SEPARATOR, last	)) != std::string::npos)
+	while ((next = rawRightParts.find(RULE_RIGHT_PARTS_SEPARATOR, last)) != std::string::npos)
 	{
 		rawRightPart = Trim(rawRightParts.substr(last, next - last));
 

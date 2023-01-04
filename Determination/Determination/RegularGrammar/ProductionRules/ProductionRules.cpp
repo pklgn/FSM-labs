@@ -142,9 +142,9 @@ MooreTable ProductionRules::Determine() const
 		FSMStateTransitions stateTransitions;
 		std::for_each(m_terminals.begin(), m_terminals.end(), [&](Terminal terminal) {
 			auto& transitions = dstStates[terminal];
-			auto transitionsStr = Join<SrcTransitionStates::const_iterator>(transitions.begin(), transitions.end());
+			auto&& transitionsStr = Join<SrcTransitionStates::const_iterator>(transitions.begin(), transitions.end());
 			std::sort(transitionsStr.begin(), transitionsStr.end());
-			stateTransitions.commonStates.push_back(transitionsStr);
+			stateTransitions.commonStates.push_back({ transitionsStr });
 			if (!transitionsStr.empty() && !viewedStates.contains(transitionsStr))
 			{
 				statesToDetermine.push_back(transitions);
