@@ -126,6 +126,7 @@ MooreTable ProductionRules::Determine() const
 		viewedStates.insert(Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end()));
 		AppendOutputSignal(outputSignals, finishingState, srcStates);
 
+		//TODO: maybe constexpr will be fine
 		switch (m_grammarType)
 		{
 		case GrammarType::LeftSide:
@@ -147,8 +148,8 @@ MooreTable ProductionRules::Determine() const
 			if (!transitionsStr.empty() && !viewedStates.contains(transitionsStr))
 			{
 				statesToDetermine.push_back(transitions);
+				viewedStates.insert(transitionsStr);
 			}
-			viewedStates.insert(transitionsStr);
 		});
 		State state = Join<SrcTransitionStates::const_iterator>(srcStates.begin(), srcStates.end());
 		std::sort(state.begin(), state.end());
