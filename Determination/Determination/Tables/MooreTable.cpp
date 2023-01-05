@@ -14,11 +14,6 @@ Signals MooreTable::GetOutputSignals() const
 	return m_outputSignals;
 }
 
-MooreStateTransitions MooreTable::GetMooreStates() const
-{
-	return m_mooreStates;
-}
-
 void MooreTable::Minimize()
 {
 	std::unordered_map<Signal, EquivalenceClass> equivalenceClasses;
@@ -34,7 +29,7 @@ void MooreTable::Minimize()
 		}
 	}
 
-	for (auto& [state, outputSignal] : m_mooreStates)
+	for (auto& [state, outputSignal] : m_outputSignalStates)
 	{
 		m_eqvClasses[state] = equivalenceClasses[outputSignal];
 	}
@@ -42,7 +37,7 @@ void MooreTable::Minimize()
 	CompleteCommonMinimization(equivalenceClasses.size());
 
 	m_outputSignals.clear();
-	for (auto& [oldState, outputSignal] : m_mooreStates)
+	for (auto& [oldState, outputSignal] : m_outputSignalStates)
 	{
 		if (m_eqvClasses.count(oldState))
 		{
