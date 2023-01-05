@@ -404,3 +404,4 @@ build/
 # Test .txt and .csv files in proj dir
 *.txt
 *.csv
+!*CMakeLists.txt*

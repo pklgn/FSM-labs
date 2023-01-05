@@ -12,6 +12,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <numeric>
 #include <optional>
 #include <set>
@@ -19,6 +20,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 #include "common/StringCommon.h"
 #include "RegularGrammar/common/GrammarTypes.h"
 
