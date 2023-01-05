@@ -1,15 +1,5 @@
 #pragma once
-#include <map>
-#include <set>
-#include <deque>
-#include <vector>
-#include <string>
-#include <optional>
-#include <algorithm>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
-#include <numeric>
+#include "../pch.h"
 
 using State = std::string;
 using Signal = std::string;

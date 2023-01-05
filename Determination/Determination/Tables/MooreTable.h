@@ -3,7 +3,7 @@
 #include <iterator>
 #include "FSMTable.hpp"
 
-using OutputSignalStates = std::unordered_map<State, Signal>;
+using stateOutputSignal = std::unordered_map<State, Signal>;
 
 class MooreTable : public FSMTable<MooreTransitionTable>
 {
@@ -18,7 +18,7 @@ public:
 		}
 
 		std::transform(m_states.begin(), m_states.end(), m_outputSignals.begin(),
-			std::inserter(m_outputSignalStates, m_outputSignalStates.begin()),
+			std::inserter(m_stateOutputSignal, m_stateOutputSignal.begin()),
 			[](const auto& state, const auto& outputSignal) {
 				return std::pair<State, Signal>(state, outputSignal);
 			});
@@ -38,5 +38,5 @@ protected:
 	void RemoveUnreachableOutputSignals(const States&);
 
 	Signals m_outputSignals;
-	OutputSignalStates m_outputSignalStates;
+	stateOutputSignal m_stateOutputSignal;
 };

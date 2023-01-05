@@ -15,9 +15,7 @@ void ConsoleGrammarDetermination::Run() const
 	std::ifstream inputStream(m_inputFileName);
 	Reader reader(m_grammarType, inputStream);
 	auto productionRules = reader.ReadProductionRules();
-
 	auto result = productionRules.Determine();
-	
 	CSVWriter writer(m_outputFileName);
 	writer.WriteMooreTable(result);
 }

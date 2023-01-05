@@ -1,6 +1,5 @@
 #pragma once
 #include <istream>
-#include "../common/GrammarTypes.h"
 #include "../ProductionRules/ProductionRules.h"
 
 namespace RegularGrammar

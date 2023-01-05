@@ -1,6 +1,6 @@
 #include "../../pch.h"
-#include "../ProductionRules/ProductionRules.h"
 #include "Reader.h"
+#include "../ProductionRules/ProductionRules.h"
 
 namespace RegularGrammar
 {

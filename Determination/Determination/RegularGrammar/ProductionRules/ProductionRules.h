@@ -1,7 +1,7 @@
 #pragma once
 #include "../../pch.h"
-#include "ProductionRule/ProductionRule.h"
 #include "../../Tables/MooreTable.h"
+#include "ProductionRule/ProductionRule.h"
 
 namespace RegularGrammar
 {

@@ -1,3 +1,4 @@
+#include "../../../../pch.h"
 #include "RightPart.h"
 
 RegularGrammar::RightPart::RightPart(GrammarType type, const RawRightPart& rawRightPart)

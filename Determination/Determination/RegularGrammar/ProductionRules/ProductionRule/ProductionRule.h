@@ -1,5 +1,6 @@
 #pragma once
 #include "RightPart/RightPart.h"
+
 namespace RegularGrammar
 {
 struct ProductionRule

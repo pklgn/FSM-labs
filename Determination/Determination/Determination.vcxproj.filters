@@ -45,6 +45,12 @@
     <ClCompile Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RegularGrammar\Console\Determination\ConsoleGrammarDetermination.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Console\Determination\ConsoleDetermination.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVReader\CSVReader.h">
@@ -81,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegularGrammar\Console\Determination\ConsoleGrammarDetermination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\Determination\ConsoleDetermination.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,4 @@
-#include <deque>
-#include <set>
-#include <iostream>
+#include "../pch.h"
 #include "MooreTable.h"
 
 const State NO_STATE = "";
@@ -29,7 +27,7 @@ void MooreTable::Minimize()
 		}
 	}
 
-	for (auto& [state, outputSignal] : m_outputSignalStates)
+	for (auto& [state, outputSignal] : m_stateOutputSignal)
 	{
 		m_eqvClasses[state] = equivalenceClasses[outputSignal];
 	}
@@ -37,7 +35,7 @@ void MooreTable::Minimize()
 	CompleteCommonMinimization(equivalenceClasses.size());
 
 	m_outputSignals.clear();
-	for (auto& [oldState, outputSignal] : m_outputSignalStates)
+	for (auto& [oldState, outputSignal] : m_stateOutputSignal)
 	{
 		if (m_eqvClasses.count(oldState))
 		{
@@ -156,7 +154,7 @@ MooreTable MooreTable::Determine()
 		bool isFinishing = false;
 		for (auto&& currState : currStates)
 		{
-			if (m_outputSignalStates[currState] == FINISHING_SIGNAL)
+			if (m_stateOutputSignal[currState] == FINISHING_SIGNAL)
 			{
 				isFinishing = true;
 				break;

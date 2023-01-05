@@ -1,7 +1,4 @@
-#include <deque>
-#include <set>
-#include <unordered_set>
-#include <algorithm>
+#include "../pch.h"
 #include "MealyTable.h"
 
 void MealyTable::Minimize()

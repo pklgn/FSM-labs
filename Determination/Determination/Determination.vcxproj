@@ -130,9 +130,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\StringCommon.cpp" />
+    <ClCompile Include="Console\Determination\ConsoleDetermination.cpp" />
     <ClCompile Include="CSVReader\CSVReader.cpp" />
     <ClCompile Include="CSVWriter\CSVWriter.cpp" />
     <ClCompile Include="Determination.cpp" />
+    <ClCompile Include="RegularGrammar\Console\Determination\ConsoleGrammarDetermination.cpp" />
     <ClCompile Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.cpp" />
     <ClCompile Include="RegularGrammar\ProductionRules\ProductionRules.cpp" />
     <ClCompile Include="RegularGrammar\Reader\Reader.cpp" />
@@ -142,8 +144,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\StringCommon.h" />
+    <ClInclude Include="Console\Determination\ConsoleDetermination.h" />
     <ClInclude Include="CSVReader\CSVReader.h" />
     <ClInclude Include="CSVWriter\CSVWriter.h" />
+    <ClInclude Include="RegularGrammar\Console\Determination\ConsoleGrammarDetermination.h" />
     <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\ProductionRule.h" />
     <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.h" />
     <ClInclude Include="RegularGrammar\ProductionRules\ProductionRules.h" />
