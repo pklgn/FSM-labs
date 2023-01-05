@@ -5,6 +5,7 @@
 const char CSV_DELIMITER = ';';
 const char MEALY_STATE_DELIMITER = '/';
 const char DST_STATE_DELIMITER = ',';
+const State EMPTY_STATE = "-";
 
 template <typename T>
 void InitTransitionTableWithStates(std::istringstream& iss, States& states, T& transitionTable);
@@ -79,11 +80,13 @@ MooreTable CSVReader::ReadMooreTable()
 	Signals outputSignals;
 	while (std::getline(lineStream, signal, CSV_DELIMITER))
 	{
-		if (!signal.empty())
-		{
-			outputSignals.push_back(signal);
-		}
+		outputSignals.push_back(signal);
 	}
+	if (signal.empty())
+	{
+		outputSignals.push_back(signal);
+	}
+	outputSignals.erase(outputSignals.begin());
 
 	std::string row;
 	std::getline(m_inputFile, row);
@@ -105,7 +108,14 @@ MooreTable CSVReader::ReadMooreTable()
 
 		for (size_t columnIndex = 0; std::getline(lineStream, tableField, CSV_DELIMITER); ++columnIndex)
 		{
-			transitionTable[states[columnIndex]].commonStates.push_back(ParseDstStates(tableField));
+			if (tableField == EMPTY_STATE)
+			{
+				transitionTable[states[columnIndex]].commonStates.push_back({});
+			}
+			else
+			{
+				transitionTable[states[columnIndex]].commonStates.push_back(ParseDstStates(tableField));
+			}
 		}
 	}
 
