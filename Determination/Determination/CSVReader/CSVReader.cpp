@@ -15,6 +15,10 @@ std::string RetrieveDestinationState(const std::string& tableField);
 CSVReader::CSVReader(const std::string& inputFileName)
 	: m_inputFile(inputFileName)
 {
+	if (!m_inputFile)
+	{
+		throw std::runtime_error("Unable to open specified file to read");
+	}
 }
 
 MealyTable CSVReader::ReadMealyTable()

@@ -13,6 +13,10 @@ ConsoleGrammarDetermination::ConsoleGrammarDetermination(int argc, char* argv[])
 void ConsoleGrammarDetermination::Run() const
 {
 	std::ifstream inputStream(m_inputFileName);
+	if (!inputStream)
+	{
+		throw std::runtime_error("Unable to open specified file to read");
+	}
 	Reader reader(m_grammarType, inputStream);
 	auto productionRules = reader.ReadProductionRules();
 	auto result = productionRules.Determine();

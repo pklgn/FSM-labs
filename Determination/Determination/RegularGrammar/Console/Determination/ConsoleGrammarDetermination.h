@@ -15,6 +15,6 @@ private:
 	GrammarType GetGrammarTypeMode(const std::string& modeStr);
 
 	GrammarType m_grammarType;
-	const std::string& m_inputFileName;
-	const std::string& m_outputFileName;
+	std::string m_inputFileName;
+	std::string m_outputFileName;
 };

@@ -10,6 +10,10 @@ const std::string CSVWriter::STATE_PREFIX = "q";
 CSVWriter::CSVWriter(const std::string& outputFileName)
 	: m_outputStream(outputFileName)
 {
+	if (!m_outputStream)
+	{
+		throw std::runtime_error("Unable to open specified file to write");
+	}
 }
 
 void CSVWriter::WriteMealyTable(const MealyTable& mealyTable, const std::string& prefix)
