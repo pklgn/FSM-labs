@@ -133,7 +133,9 @@
     <ClCompile Include="CSVReader\CSVReader.cpp" />
     <ClCompile Include="CSVWriter\CSVWriter.cpp" />
     <ClCompile Include="Determination.cpp" />
-    <ClCompile Include="RegularGrammar\Reader\RegularGrammarReader.cpp" />
+    <ClCompile Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.cpp" />
+    <ClCompile Include="RegularGrammar\ProductionRules\ProductionRules.cpp" />
+    <ClCompile Include="RegularGrammar\Reader\Reader.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Tables\MealyTable.cpp" />
     <ClCompile Include="Tables\MooreTable.cpp" />
@@ -142,7 +144,10 @@
     <ClInclude Include="common\StringCommon.h" />
     <ClInclude Include="CSVReader\CSVReader.h" />
     <ClInclude Include="CSVWriter\CSVWriter.h" />
-    <ClInclude Include="RegularGrammar\Reader\RegularGrammarReader.h" />
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\ProductionRule.h" />
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.h" />
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRules.h" />
+    <ClInclude Include="RegularGrammar\Reader\Reader.h" />
     <ClInclude Include="RegularGrammar\common\GrammarTypes.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Tables\FSMTable.hpp" />

@@ -9,10 +9,15 @@
 
 // add headers that you want to pre-compile here
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <optional>
+#include <deque>
+#include <sstream>
 #include "common/StringCommon.h"
+#include "RegularGrammar/common/GrammarTypes.h"
 
 #endif //PCH_H

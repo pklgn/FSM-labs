@@ -27,7 +27,7 @@
     <ClCompile Include="Tables\MooreTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RegularGrammar\Reader\RegularGrammarReader.cpp">
+    <ClCompile Include="RegularGrammar\Reader\Reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -37,6 +37,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="common\StringCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RegularGrammar\ProductionRules\ProductionRules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,7 +62,7 @@
     <ClInclude Include="Tables\MooreTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RegularGrammar\Reader\RegularGrammarReader.h">
+    <ClInclude Include="RegularGrammar\Reader\Reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RegularGrammar\common\GrammarTypes.h">
@@ -66,6 +72,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\StringCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\ProductionRule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegularGrammar\ProductionRules\ProductionRule\RightPart\RightPart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
