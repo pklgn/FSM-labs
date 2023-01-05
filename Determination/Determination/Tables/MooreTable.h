@@ -35,6 +35,7 @@ public:
 protected:
 	std::set<State> GetEClosure(const State& state);
 	std::set<State> GetEClosures(const std::set<State>& states);
+	void AppendOutputSignal(Signals&, const std::set<State>& currStates);
 	void RemoveUnreachableOutputSignals(const States&);
 
 	Signals m_outputSignals;

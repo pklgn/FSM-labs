@@ -122,6 +122,27 @@ std::set<State> MooreTable::GetEClosures(const std::set<State>& states)
 	return reachableStates;
 }
 
+void MooreTable::AppendOutputSignal(Signals& outputSignals, const std::set<State>& currStates)
+{
+	bool isFinishing = false;
+	for (auto&& currState : currStates)
+	{
+		if (m_stateOutputSignal[currState] == FINISHING_SIGNAL)
+		{
+			isFinishing = true;
+			break;
+		}
+	}
+	if (isFinishing)
+	{
+		outputSignals.push_back(FINISHING_SIGNAL);
+	}
+	else
+	{
+		outputSignals.push_back("");
+	}
+}
+
 MooreTable MooreTable::Determine()
 {
 	States tableStates;
@@ -150,24 +171,7 @@ MooreTable MooreTable::Determine()
 		States currStatesVec = { currStates.begin(), currStates.end() };
 		states.insert(currStatesVec);
 		tableStates.push_back(std::accumulate(currStates.begin(), currStates.end(), std::string("")));
-		// output signal
-		bool isFinishing = false;
-		for (auto&& currState : currStates)
-		{
-			if (m_stateOutputSignal[currState] == FINISHING_SIGNAL)
-			{
-				isFinishing = true;
-				break;
-			}
-		}
-		if (isFinishing)
-		{
-			outputSignals.push_back(FINISHING_SIGNAL);
-		}
-		else
-		{
-			outputSignals.push_back("");
-		}
+		AppendOutputSignal(outputSignals, currStates);
 		FSMStateTransitions currTransitions;
 		auto signalsSize = m_inputSignals.size();
 		if (haveEClosure)

@@ -16,8 +16,9 @@ void ConsoleGrammarDetermination::Run() const
 	Reader reader(m_grammarType, inputStream);
 	auto productionRules = reader.ReadProductionRules();
 	auto result = productionRules.Determine();
+	result.RenameStates();
 	CSVWriter writer(m_outputFileName);
-	writer.WriteMooreTable(result);
+	writer.WriteMooreTable(result, "");
 }
 
 GrammarType ConsoleGrammarDetermination::GetGrammarTypeMode(const std::string& modeStr)
