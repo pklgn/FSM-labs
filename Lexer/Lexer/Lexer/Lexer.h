@@ -34,6 +34,7 @@ public:
 
 	Tokens GetTokens() const;
 
+	void PrintTokens(std::ostream&) const;
 
 private:
 	void AppendToken(TokenTypename, const Lexeme&, size_t line, size_t pos);

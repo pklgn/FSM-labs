@@ -66,12 +66,17 @@ Lexer::Lexer()
 void Lexer::Run(std::ifstream& input)
 {
 	std::string line;
+	m_lineNumber = 0;
 	while (std::getline(input, line))
 	{
+		++m_lineNumber;
+		m_char = ' ';
+		m_linePosition = 0;
+		m_state = State::COMMON;
 		auto lineSize = line.size();
 		while (m_state != State::FINISH)
 		{
-			if (lineSize <= m_linePosition)
+			if (lineSize < m_linePosition)
 			{
 				m_state = State::FINISH;
 			}
@@ -82,7 +87,7 @@ void Lexer::Run(std::ifstream& input)
 				{
 					GetChar(line);
 				}
-				else if (std::isalpha(m_char))
+				else if (std::isalpha(m_char) || m_char == '_')
 				{
 					AppendBuffer(m_char);
 					m_state = State::IDENTIFIER;
@@ -228,7 +233,6 @@ void Lexer::Run(std::ifstream& input)
 				break;
 			}
 			case Lexer::State::DELIMITER: {
-				ClearBuffer();
 				AppendBuffer(m_char);
 
 				auto it = FindLexeme(m_delimeters);
@@ -237,17 +241,16 @@ void Lexer::Run(std::ifstream& input)
 					AppendToken(TokenTypename::DELIMITER, m_buffer, m_lineNumber, m_linePosition);
 					m_state = State::COMMON;
 					GetChar(line);
-					
+					ClearBuffer();
 				}
 
 				break;
 			}
 			case Lexer::State::IDENTIFIER: {
-				if (std::isalnum(m_char))
+				if (std::isalnum(m_char) || m_char == '_')
 				{
 					AppendBuffer(m_char);
 					GetChar(line);
-					
 				}
 				else
 				{
@@ -314,6 +317,8 @@ void Lexer::Run(std::ifstream& input)
 				else
 				{
 					AppendToken(TokenTypename::NUMBER, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
 				}
 				break;
 			}
@@ -361,7 +366,6 @@ void Lexer::Run(std::ifstream& input)
 				break;
 			}
 			case Lexer::State::FINISH:
-				std::cout << "Lexer finish\n";
 				break;
 			default:
 				break;
@@ -376,17 +380,27 @@ std::vector<Token> Lexer::GetTokens() const
 	return m_tokens;
 }
 
+void Lexer::PrintTokens(std::ostream& output) const
+{
+	for (auto&& token : m_tokens)
+	{
+		token.PrintToken(output);
+		output << std::endl;
+	}
+}
+
 void Lexer::AppendToken(TokenTypename tokenTypename, const Lexeme& lexeme, size_t line, size_t pos)
 {
-	m_tokens.push_back(Token(tokenTypename, lexeme, line, pos));
+	m_tokens.push_back(Token(tokenTypename, lexeme, line, pos - lexeme.size()));
 }
 
 void Lexer::GetChar(const std::string& string)
 {
 	if (m_linePosition < string.size())
 	{
-		m_char = string.at(m_linePosition++);
+		m_char = string.at(m_linePosition);
 	}
+	++m_linePosition;
 }
 
 void Lexer::ClearBuffer()

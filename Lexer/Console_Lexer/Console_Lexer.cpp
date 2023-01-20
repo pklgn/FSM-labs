@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 			}
 			Lexer lexer;
 			lexer.Run(inputFile);
+			lexer.PrintTokens(std::cout);
 		}
 		else
 		{
