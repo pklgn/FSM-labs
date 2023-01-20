@@ -37,6 +37,8 @@ Lexer::Lexer()
 		"WRITE",
 		"GET",
 		"PUT",
+		"INTO",
+		"FROM",
 
 		// утверждение
 		"DISPLAY",
@@ -60,10 +62,9 @@ Lexer::Lexer()
 		"THEN",
 		"WHILE",
 		"LIST",
+		"TO",
 	};
 }
-
-//TODO: сделать поддержку строковых литералов
 
 void Lexer::Run(std::ifstream& input)
 {
@@ -131,7 +132,6 @@ void Lexer::Run(std::ifstream& input)
 				}
 				else if (m_char == '<')
 				{
-					// TODO: все неодиночные лексемы должны корректно работать когда разбор доходит до конца строки
 					AppendBuffer(m_char);
 					if (m_linePosition != lineSize)
 					{
@@ -260,6 +260,11 @@ void Lexer::Run(std::ifstream& input)
 					GetChar(line);
 					ClearBuffer();
 				}
+				else
+				{
+					ClearBuffer();
+					m_state = State::ERROR;
+				}
 
 				break;
 			}
@@ -325,10 +330,7 @@ void Lexer::Run(std::ifstream& input)
 					}
 					else
 					{
-						AppendBuffer(m_char);
 						m_state = State::ERROR;
-						GetChar(line);
-						
 					}
 				}
 				else
@@ -343,27 +345,27 @@ void Lexer::Run(std::ifstream& input)
 				if (std::isdigit(m_char))
 				{
 					AppendBuffer(m_char);
+					GetChar(line);
 				}
 				else
 				{
 					AppendToken(TokenTypename::DECIMAL, m_buffer, m_lineNumber, m_linePosition);
-					GetChar(line);
-					
 					m_state = State::COMMON;
+					ClearBuffer();
 				}
 				break;
 			}
 			case Lexer::State::OCTAL: {
-				if (std::isdigit(m_char) || m_char != '9')
+				if (std::isdigit(m_char) && m_char != '9')
 				{
 					AppendBuffer(m_char);
+					GetChar(line);
 				}
 				else
 				{
 					AppendToken(TokenTypename::OCTAL, m_buffer, m_lineNumber, m_linePosition);
-					GetChar(line);
-					
 					m_state = State::COMMON;
+					ClearBuffer();
 				}
 				break;
 			}
@@ -372,13 +374,13 @@ void Lexer::Run(std::ifstream& input)
 				if (std::isdigit(m_char) || upperCh == 'A' || upperCh == 'B' || upperCh == 'C' || upperCh == 'D' || upperCh == 'E' || upperCh == 'F')
 				{
 					AppendBuffer(m_char);
+					GetChar(line);
 				}
 				else
 				{
 					AppendToken(TokenTypename::HEXADECIMAL, m_buffer, m_lineNumber, m_linePosition);
-					GetChar(line);
-					
 					m_state = State::COMMON;
+					ClearBuffer();
 				}
 				break;
 			}
@@ -430,9 +432,29 @@ void Lexer::Run(std::ifstream& input)
 				break;
 			}
 			case Lexer::State::FINISH:
+				// TODO: что-то делать
 				break;
+			case Lexer::State::ERROR: {
+				// save buffer
+				auto tempBuffer = m_buffer;
+				m_buffer = m_char;
+				auto it = FindLexeme(m_delimeters);
+				if (it != m_delimeters.end())
+				{
+					AppendToken(TokenTypename::ERROR, tempBuffer, m_lineNumber, m_linePosition);
+					m_state = State::COMMON;
+					ClearBuffer();
+				}
+				else
+				{
+					m_buffer = tempBuffer;
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				break;
+			}
 			default:
-				break;
+				throw std::runtime_error("Unexpected lexer state was found");
 			}
 		}
 	}
