@@ -17,6 +17,8 @@ Lexer::Lexer()
 		"-",
 		"*",
 		"/",
+		"\"",
+		"'",
 	};
 
 	m_keywords = {
@@ -194,6 +196,21 @@ void Lexer::Run(std::ifstream& input)
 					}
 					m_state = State::COMMON;
 				}
+				else if (m_char == '\"')
+				{
+					m_state = State::STRING;
+					GetChar(line);
+				}
+				else if (m_char == '&')
+				{
+					m_state = State::BITWISE_AND;
+					GetChar(line);
+				}
+				else if (m_char == '|')
+				{
+					m_state = State::BITWISE_OR;
+					GetChar(line);
+				}
 				else
 				{
 					m_state = State::DELIMITER;
@@ -361,6 +378,53 @@ void Lexer::Run(std::ifstream& input)
 					AppendToken(TokenTypename::HEXADECIMAL, m_buffer, m_lineNumber, m_linePosition);
 					GetChar(line);
 					
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::STRING: {
+				if (m_char == '"')
+				{
+					AppendToken(TokenTypename::STRING, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+					GetChar(line);
+				}
+				else
+				{
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				break;
+			}
+			case Lexer::State::BITWISE_AND: {
+				if (m_char == '&')
+				{
+					AppendToken(TokenTypename::AND_OPERATOR_LOGIC, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+					GetChar(line);
+				}
+				else
+				{
+					AppendToken(TokenTypename::AND_OPERATOR_BITWISE, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::BITWISE_OR: {
+				if (m_char == '|')
+				{
+					AppendToken(TokenTypename::OR_OPERATOR_LOGIC, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+					GetChar(line);
+				}
+				else
+				{
+					AppendToken(TokenTypename::OR_OPERATOR_BITWISE, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
 					m_state = State::COMMON;
 				}
 				break;

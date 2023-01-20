@@ -28,8 +28,12 @@ enum class TokenTypename
 
 	// logical
 	NOT_OPERATOR,
-	AND_OPERATOR,
-	OR_OPERATOR,
+	AND_OPERATOR_LOGIC,
+	OR_OPERATOR_LOGIC,
+
+	// bitwise
+	AND_OPERATOR_BITWISE,
+	OR_OPERATOR_BITWISE,
 
 	// string
 	CNCT_OPERATOR,
