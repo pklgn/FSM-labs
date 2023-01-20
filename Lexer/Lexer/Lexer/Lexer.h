@@ -18,8 +18,14 @@ public:
 		IDENTIFIER,
 		NUMBER,
 		DECIMAL,
+		OCTAL,
+		HEXADECIMAL,
+		DIVISION,
+		MULTIPLICATION,
+		COMPARISON,
 		COMMENT,
 		FINISH,
+		ERROR,
 	};
 
 	Lexer();
@@ -32,7 +38,7 @@ public:
 private:
 	void AppendToken(TokenTypename, const Lexeme&, size_t line, size_t pos);
 
-	char GetChar(const std::string&, size_t pos);
+	void GetChar(const std::string&);
 	void ClearBuffer();
 	void AppendBuffer(char);
 

@@ -17,8 +17,6 @@ Lexer::Lexer()
 		"-",
 		"*",
 		"/",
-		"->",
-		"=>",
 	};
 
 	m_keywords = {
@@ -27,6 +25,7 @@ Lexer::Lexer()
 		"FIXED",
 		"FLOAT",
 		"REAL",
+		"CHAR",
 
 		// оператор описаний
 		"DECLARE",
@@ -46,6 +45,7 @@ Lexer::Lexer()
 		"END",
 		"ENTRY",
 		"PROCEDURE",
+		"INITIALIZE",
 
 		// операторы управления
 		"CALL",
@@ -57,8 +57,11 @@ Lexer::Lexer()
 		"ELSE",
 		"THEN",
 		"WHILE",
+		"LIST",
 	};
 }
+
+//TODO: сделать поддержку строковых литералов
 
 void Lexer::Run(std::ifstream& input)
 {
@@ -66,82 +69,303 @@ void Lexer::Run(std::ifstream& input)
 	while (std::getline(input, line))
 	{
 		auto lineSize = line.size();
-		switch (m_state)
+		while (m_state != State::FINISH)
 		{
-		case Lexer::State::COMMON:
-			if (m_char == ' ' || m_char == '\t' || m_char == '\0')
+			if (lineSize <= m_linePosition)
 			{
-				GetChar(line, ++m_linePosition);
+				m_state = State::FINISH;
 			}
-			else if (std::isalpha(m_char))
+			switch (m_state)
 			{
-				ClearBuffer();
-				AppendBuffer(m_char);
-				m_state = State::IDENTIFIER;
-				GetChar(line, ++m_linePosition);
-			}
-			else if (std::isdigit(m_char))
-			{
-				m_number = m_char - '0';
-				m_state = State::NUMBER;
-				GetChar(line, ++m_linePosition);
-			}
-			else if (m_char == '/')
-			{
-				m_state = State::COMMENT;
-				GetChar(line, ++m_linePosition);
-			}
-			else
-			{
-				m_state = State::DELIMITER;
-			}
-			break;
-		case Lexer::State::ATTRIBUTE:
-			break;
-		case Lexer::State::DELIMITER:
-			break;
-		case Lexer::State::IDENTIFIER:
-			if (std::isalnum(m_char))
-			{
-				AppendBuffer(m_char);
-				GetChar(line, ++m_linePosition);
-			}
-			else
-			{
-				auto it = FindLexeme(m_keywords);
-				if (it != m_keywords.end())
+			case Lexer::State::COMMON: {
+				if (m_char == ' ' || m_char == '\t' || m_char == '\0')
 				{
-					AppendToken(TokenTypename::KEYWORD, m_buffer, m_lineNumber, m_linePosition);
+					GetChar(line);
+				}
+				else if (std::isalpha(m_char))
+				{
+					AppendBuffer(m_char);
+					m_state = State::IDENTIFIER;
+					GetChar(line);
+				}
+				else if (std::isdigit(m_char))
+				{
+					m_state = State::NUMBER;
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				else if (m_char == '/')
+				{
+					m_state = State::DIVISION;
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				else if (m_char == '*')
+				{
+					m_state = State::MULTIPLICATION;
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				else if (m_char == '+')
+				{
+					AppendBuffer(m_char);
+					AppendToken(TokenTypename::ADD_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					GetChar(line);
+					m_state = State::COMMON;
+				}
+				else if (m_char == '-')
+				{
+					AppendBuffer(m_char);
+					AppendToken(TokenTypename::SUB_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					GetChar(line);
+					m_state = State::COMMON;
+				}
+				else if (m_char == '<')
+				{
+					// TODO: все неодиночные лексемы должны корректно работать когда разбор доходит до конца строки
+					AppendBuffer(m_char);
+					if (m_linePosition != lineSize)
+					{
+						GetChar(line);
+						if (m_char == '=')
+						{
+							AppendBuffer(m_char);
+							AppendToken(TokenTypename::LES_OR_EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+							ClearBuffer();
+							GetChar(line);
+							
+						}
+					}
+					else
+					{
+						AppendToken(TokenTypename::LES_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+						ClearBuffer();
+					}
+					m_state = State::COMMON;
+				}
+				else if (m_char == '>')
+				{
+					AppendBuffer(m_char);
+					if (m_linePosition != lineSize)
+					{
+						GetChar(line);
+						if (m_char == '=')
+						{
+							AppendBuffer(m_char);
+							AppendToken(TokenTypename::GRT_OR_EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+							ClearBuffer();
+							GetChar(line);
+							
+						}
+					}
+					else
+					{
+						AppendToken(TokenTypename::GRT_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+						ClearBuffer();
+					}
+					m_state = State::COMMON;
+				}
+				else if (m_char == '=')
+				{
+					AppendBuffer(m_char);
+					if (m_linePosition != lineSize)
+					{
+						GetChar(line);
+						if (m_char == '=')
+						{
+							AppendBuffer(m_char);
+							AppendToken(TokenTypename::EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+							ClearBuffer();
+							GetChar(line);
+							
+						}
+					}
+					else
+					{
+						AppendToken(TokenTypename::ASG_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+						ClearBuffer();
+					}
+					m_state = State::COMMON;
 				}
 				else
 				{
-					AppendToken(TokenTypename::IDENTIFIER, m_buffer, m_lineNumber, m_linePosition);
+					m_state = State::DELIMITER;
 				}
-				m_state = State::COMMON;
+				break;
 			}
-			break;
-		case Lexer::State::NUMBER:
-			if (std::isdigit(m_char))
-			{
-				m_number = m_number * 10 + (m_char - '0');
-				GetChar(line, ++m_linePosition);
+			case Lexer::State::DIVISION: {
+				if (m_char == '/')
+				{
+					AppendBuffer(m_char);
+					m_state = State::COMMENT;
+					GetChar(line);
+					
+				}
+				else
+				{
+					AppendToken(TokenTypename::DIV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+				}
+				break;
 			}
-			else if (m_char == '.')
-			{
-				m_state = State::DECIMAL;
-				GetChar(line, ++m_linePosition);
+			case Lexer::State::MULTIPLICATION: {
+				if (m_char == '*')
+				{
+					AppendBuffer(m_char);
+					AppendToken(TokenTypename::EXP_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+					GetChar(line);
+					
+				}
+				else
+				{
+					m_state = State::COMMON;
+				}
+				break;
 			}
-			else if (m_char == 'h')
-			{
-				// TODO: переделать определение типа числа в его начале, а не конце
+			case Lexer::State::DELIMITER: {
+				ClearBuffer();
+				AppendBuffer(m_char);
+
+				auto it = FindLexeme(m_delimeters);
+				if (it != m_delimeters.end())
+				{
+					AppendToken(TokenTypename::DELIMITER, m_buffer, m_lineNumber, m_linePosition);
+					m_state = State::COMMON;
+					GetChar(line);
+					
+				}
+
+				break;
 			}
-			break;
-		case Lexer::State::COMMENT:
-			break;
-		case Lexer::State::FINISH:
-			break;
-		default:
-			break;
+			case Lexer::State::IDENTIFIER: {
+				if (std::isalnum(m_char))
+				{
+					AppendBuffer(m_char);
+					GetChar(line);
+					
+				}
+				else
+				{
+					auto it = FindLexeme(m_keywords);
+					if (it != m_keywords.end())
+					{
+						AppendToken(TokenTypename::KEYWORD, m_buffer, m_lineNumber, m_linePosition);
+					}
+					else
+					{
+						AppendToken(TokenTypename::IDENTIFIER, m_buffer, m_lineNumber, m_linePosition);
+					}
+					ClearBuffer();
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::NUMBER: {
+				if (std::isdigit(m_char))
+				{
+					AppendBuffer(m_char);
+					GetChar(line);
+					
+				}
+				else if (m_char == '.')
+				{
+					m_state = State::DECIMAL;
+					AppendBuffer(m_char);
+					GetChar(line);
+					
+				}
+				else if (m_char == 'h')
+				{
+					if (m_buffer == "0")
+					{
+						m_state = State::HEXADECIMAL;
+						AppendBuffer(m_char);
+						GetChar(line);
+						
+					}
+					else
+					{
+						AppendBuffer(m_char);
+						m_state = State::ERROR;
+					}
+				}
+				else if (m_char == 'q')
+				{
+					if (m_buffer == "0")
+					{
+						m_state = State::OCTAL;
+						AppendBuffer(m_char);
+						GetChar(line);
+						
+					}
+					else
+					{
+						AppendBuffer(m_char);
+						m_state = State::ERROR;
+						GetChar(line);
+						
+					}
+				}
+				else
+				{
+					AppendToken(TokenTypename::NUMBER, m_buffer, m_lineNumber, m_linePosition);
+				}
+				break;
+			}
+			case Lexer::State::DECIMAL: {
+				if (std::isdigit(m_char))
+				{
+					AppendBuffer(m_char);
+				}
+				else
+				{
+					AppendToken(TokenTypename::DECIMAL, m_buffer, m_lineNumber, m_linePosition);
+					GetChar(line);
+					
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::OCTAL: {
+				if (std::isdigit(m_char) || m_char != '9')
+				{
+					AppendBuffer(m_char);
+				}
+				else
+				{
+					AppendToken(TokenTypename::OCTAL, m_buffer, m_lineNumber, m_linePosition);
+					GetChar(line);
+					
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::HEXADECIMAL: {
+				auto upperCh = std::toupper(m_char);
+				if (std::isdigit(m_char) || upperCh == 'A' || upperCh == 'B' || upperCh == 'C' || upperCh == 'D' || upperCh == 'E' || upperCh == 'F')
+				{
+					AppendBuffer(m_char);
+				}
+				else
+				{
+					AppendToken(TokenTypename::HEXADECIMAL, m_buffer, m_lineNumber, m_linePosition);
+					GetChar(line);
+					
+					m_state = State::COMMON;
+				}
+				break;
+			}
+			case Lexer::State::FINISH:
+				std::cout << "Lexer finish\n";
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -157,9 +381,12 @@ void Lexer::AppendToken(TokenTypename tokenTypename, const Lexeme& lexeme, size_
 	m_tokens.push_back(Token(tokenTypename, lexeme, line, pos));
 }
 
-char Lexer::GetChar(const std::string& string, size_t pos)
+void Lexer::GetChar(const std::string& string)
 {
-	return string.at(pos);
+	if (m_linePosition < string.size())
+	{
+		m_char = string.at(m_linePosition++);
+	}
 }
 
 void Lexer::ClearBuffer()
