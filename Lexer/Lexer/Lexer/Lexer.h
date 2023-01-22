@@ -22,6 +22,7 @@ public:
 		HEXADECIMAL,
 		DIVISION,
 		MULTIPLICATION,
+		ASSIGNMENT,
 		STRING,
 		BITWISE_OR,
 		BITWISE_AND,
@@ -32,7 +33,7 @@ public:
 
 	Lexer();
 
-	void Run(std::ifstream&);
+	void Run(std::istream&);
 
 	Tokens GetTokens() const;
 

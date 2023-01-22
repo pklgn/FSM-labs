@@ -40,6 +40,9 @@ Lexer::Lexer()
 		"PUT",
 		"INTO",
 		"FROM",
+		"FILE",
+		"SKIP",
+		"EDIT",
 
 		// утверждение
 		"DISPLAY",
@@ -51,6 +54,7 @@ Lexer::Lexer()
 		"ENTRY",
 		"PROCEDURE",
 		"INITIALIZE",
+		"GOTO",
 
 		// операторы управления
 		"CALL",
@@ -67,7 +71,7 @@ Lexer::Lexer()
 	};
 }
 
-void Lexer::Run(std::ifstream& input)
+void Lexer::Run(std::istream& input)
 {
 	std::string line;
 	m_lineNumber = 0;
@@ -119,22 +123,23 @@ void Lexer::Run(std::ifstream& input)
 				else if (m_char == '+')
 				{
 					AppendBuffer(m_char);
+					GetChar(line);
 					AppendToken(TokenTypename::ADD_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
 					ClearBuffer();
-					GetChar(line);
 					m_state = State::COMMON;
 				}
 				else if (m_char == '-')
 				{
 					AppendBuffer(m_char);
+					GetChar(line);
 					AppendToken(TokenTypename::SUB_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
 					ClearBuffer();
-					GetChar(line);
 					m_state = State::COMMON;
 				}
 				else if (m_char == '<')
 				{
 					AppendBuffer(m_char);
+					m_state = State::COMMON;
 					if (m_linePosition != lineSize)
 					{
 						GetChar(line);
@@ -144,19 +149,16 @@ void Lexer::Run(std::ifstream& input)
 							AppendToken(TokenTypename::LES_OR_EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
 							ClearBuffer();
 							GetChar(line);
-							
+							break;
 						}
 					}
-					else
-					{
-						AppendToken(TokenTypename::LES_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
-						ClearBuffer();
-					}
-					m_state = State::COMMON;
+					AppendToken(TokenTypename::LES_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
 				}
 				else if (m_char == '>')
 				{
 					AppendBuffer(m_char);
+					m_state = State::COMMON;
 					if (m_linePosition != lineSize)
 					{
 						GetChar(line);
@@ -166,37 +168,17 @@ void Lexer::Run(std::ifstream& input)
 							AppendToken(TokenTypename::GRT_OR_EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
 							ClearBuffer();
 							GetChar(line);
-							
+							break;
 						}
 					}
-					else
-					{
-						AppendToken(TokenTypename::GRT_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
-						ClearBuffer();
-					}
-					m_state = State::COMMON;
+					AppendToken(TokenTypename::GRT_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
 				}
 				else if (m_char == '=')
 				{
 					AppendBuffer(m_char);
-					if (m_linePosition != lineSize)
-					{
-						GetChar(line);
-						if (m_char == '=')
-						{
-							AppendBuffer(m_char);
-							AppendToken(TokenTypename::EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
-							ClearBuffer();
-							GetChar(line);
-							
-						}
-					}
-					else
-					{
-						AppendToken(TokenTypename::ASG_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
-						ClearBuffer();
-					}
-					m_state = State::COMMON;
+					m_state = State::ASSIGNMENT;
+					GetChar(line);
 				}
 				else if (m_char == '\"')
 				{
@@ -242,10 +224,11 @@ void Lexer::Run(std::ifstream& input)
 					ClearBuffer();
 					m_state = State::COMMON;
 					GetChar(line);
-					
 				}
 				else
 				{
+					AppendToken(TokenTypename::MUL_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
 					m_state = State::COMMON;
 				}
 				break;
@@ -356,7 +339,7 @@ void Lexer::Run(std::ifstream& input)
 				break;
 			}
 			case Lexer::State::OCTAL: {
-				if (std::isdigit(m_char) && m_char != '9')
+				if (std::isdigit(m_char) && m_char != '8' && m_char != '9')
 				{
 					AppendBuffer(m_char);
 					GetChar(line);
@@ -389,8 +372,8 @@ void Lexer::Run(std::ifstream& input)
 				{
 					AppendToken(TokenTypename::STRING, m_buffer, m_lineNumber, m_linePosition);
 					ClearBuffer();
-					m_state = State::COMMON;
 					GetChar(line);
+					m_state = State::COMMON;
 				}
 				else
 				{
@@ -431,6 +414,23 @@ void Lexer::Run(std::ifstream& input)
 				}
 				break;
 			}
+			case Lexer::State::ASSIGNMENT: {
+				if (m_char == '=')
+				{
+					AppendBuffer(m_char);
+					AppendToken(TokenTypename::EQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					GetChar(line);
+					m_state = State::COMMON;
+				}
+				else
+				{
+					AppendToken(TokenTypename::ASG_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::COMMON;
+				}
+				break;
+			}
 			case Lexer::State::FINISH: {
 				m_char = ' ';
 				if (Lexer_DEBUG)
@@ -446,9 +446,12 @@ void Lexer::Run(std::ifstream& input)
 				auto tempBuffer = m_buffer;
 				m_buffer = m_char;
 				auto it = FindLexeme(m_delimeters);
-				if (it != m_delimeters.end())
+				if (it != m_delimeters.end() || lineSize <= m_linePosition)
 				{
-					AppendToken(TokenTypename::ERROR, tempBuffer, m_lineNumber, m_linePosition);
+					if (!tempBuffer.empty())
+					{
+						AppendToken(TokenTypename::ERROR, tempBuffer, m_lineNumber, m_linePosition);
+					}
 					m_state = State::COMMON;
 					ClearBuffer();
 				}

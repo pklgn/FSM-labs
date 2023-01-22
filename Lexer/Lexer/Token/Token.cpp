@@ -89,10 +89,10 @@ void Token::PrintTokenTypename(std::ostream& output) const
 		output << "GREATER_THAN";
 		break;
 	case TokenTypename::LES_OR_EQV_OPERATOR:
-		output << "LESS_THAN_OR_EQUAL_TO";
+		output << "LESS_THEN_OR_EQUAL_TO_OPERATOR";
 		break;
 	case TokenTypename::GRT_OR_EQV_OPERATOR:
-		output << "GREATER_THAN_OR_EQUAL_TO";
+		output << "GREATER_THEN_OR_EQUAL_TO_OPERATOR";
 		break;
 	case TokenTypename::NOT_OPERATOR:
 		output << "NOT_OPERATOR";
