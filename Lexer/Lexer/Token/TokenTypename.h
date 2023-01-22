@@ -27,7 +27,6 @@ enum class TokenTypename
 	GRT_OR_EQV_OPERATOR,
 
 	// logical
-	NOT_OPERATOR,
 	AND_OPERATOR_LOGIC,
 	OR_OPERATOR_LOGIC,
 
@@ -36,8 +35,6 @@ enum class TokenTypename
 	OR_OPERATOR_BITWISE,
 
 	// string
-	CNCT_OPERATOR,
-
 	STRING,
 	DELIMITER,
 	COMMENTARY,

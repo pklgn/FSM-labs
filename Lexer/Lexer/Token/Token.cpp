@@ -32,8 +32,8 @@ size_t Token::GetPosition() const
 void Token::PrintToken(std::ostream& output) const
 {
 	PrintTokenTypename(output);
-	output << " |" << m_lexeme
-		   << "| " << m_line << ':' << m_position;
+	output << " `" << m_lexeme
+		   << "` " << m_line << ':' << m_position;
 }
 
 void Token::PrintTokenTypename(std::ostream& output) const
@@ -94,17 +94,17 @@ void Token::PrintTokenTypename(std::ostream& output) const
 	case TokenTypename::GRT_OR_EQV_OPERATOR:
 		output << "GREATER_THEN_OR_EQUAL_TO_OPERATOR";
 		break;
-	case TokenTypename::NOT_OPERATOR:
-		output << "NOT_OPERATOR";
-		break;
 	case TokenTypename::AND_OPERATOR_LOGIC:
 		output << "AND_OPERATOR_LOGIC";
 		break;
 	case TokenTypename::OR_OPERATOR_LOGIC:
 		output << "OR_OPERATOR_LOGIC";
 		break;
-	case TokenTypename::CNCT_OPERATOR:
-		output << "CONCATENATION_OPERATOR";
+	case TokenTypename::AND_OPERATOR_BITWISE:
+		output << "AND_OPERATOR_BITWISE";
+		break;
+	case TokenTypename::OR_OPERATOR_BITWISE:
+		output << "OR_OPERATOR_BITWISE";
 		break;
 	case TokenTypename::STRING:
 		output << "STRING";

@@ -187,13 +187,32 @@ void Lexer::Run(std::istream& input)
 				}
 				else if (m_char == '&')
 				{
+					AppendBuffer(m_char);
 					m_state = State::BITWISE_AND;
 					GetChar(line);
 				}
 				else if (m_char == '|')
 				{
+					AppendBuffer(m_char);
 					m_state = State::BITWISE_OR;
 					GetChar(line);
+				}
+				else if (m_char == '!')
+				{
+					AppendBuffer(m_char);
+					if (m_linePosition != lineSize)
+					{
+						GetChar(line);
+						if (m_char == '=')
+						{
+							AppendBuffer(m_char);
+							AppendToken(TokenTypename::NEQV_OPERATOR, m_buffer, m_lineNumber, m_linePosition);
+							ClearBuffer();
+							GetChar(line);
+							break;
+						}
+					}
+					m_state = State::ERROR;
 				}
 				else
 				{
@@ -385,6 +404,7 @@ void Lexer::Run(std::istream& input)
 			case Lexer::State::BITWISE_AND: {
 				if (m_char == '&')
 				{
+					AppendBuffer(m_char);
 					AppendToken(TokenTypename::AND_OPERATOR_LOGIC, m_buffer, m_lineNumber, m_linePosition);
 					ClearBuffer();
 					m_state = State::COMMON;
@@ -399,8 +419,10 @@ void Lexer::Run(std::istream& input)
 				break;
 			}
 			case Lexer::State::BITWISE_OR: {
+
 				if (m_char == '|')
 				{
+					AppendBuffer(m_char);
 					AppendToken(TokenTypename::OR_OPERATOR_LOGIC, m_buffer, m_lineNumber, m_linePosition);
 					ClearBuffer();
 					m_state = State::COMMON;
@@ -458,6 +480,20 @@ void Lexer::Run(std::istream& input)
 				else
 				{
 					m_buffer = tempBuffer;
+					AppendBuffer(m_char);
+					GetChar(line);
+				}
+				break;
+			}
+			case Lexer::State::COMMENT: {
+				if (m_char == '\n')
+				{
+					AppendToken(TokenTypename::COMMENTARY, m_buffer, m_lineNumber, m_linePosition);
+					ClearBuffer();
+					m_state = State::FINISH;
+				}
+				else
+				{
 					AppendBuffer(m_char);
 					GetChar(line);
 				}
