@@ -1,0 +1,6 @@
+DECLARE
+	(arg,sum) DECIMAL FIXED (15),
+	schet FLOAT,
+	(s1,s2) FIXED (7),
+	(pole,name) CHAR(120),
+	shifr CHAR(15) INITIAL ("123456789111111");

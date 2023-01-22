@@ -1,0 +1,4 @@
+IF S1>1000 THEN DO;
+    PUT SKIP EDIT("some random text")(A);
+STOP;
+                              END;

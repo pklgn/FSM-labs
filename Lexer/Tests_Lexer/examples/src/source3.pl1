@@ -1,0 +1,1 @@
+DISPLAY("введите отчетный год-YYYY") REPLY(answer);
