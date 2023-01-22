@@ -1,4 +1,5 @@
 ﻿#include "../pch.h"
+#include "../common/common.h"
 #include "Lexer.h"
 
 Lexer::Lexer()
@@ -72,6 +73,7 @@ void Lexer::Run(std::ifstream& input)
 	m_lineNumber = 0;
 	while (std::getline(input, line))
 	{
+		line += '\n';
 		++m_lineNumber;
 		m_char = ' ';
 		m_linePosition = 0;
@@ -79,16 +81,16 @@ void Lexer::Run(std::ifstream& input)
 		auto lineSize = line.size();
 		while (m_state != State::FINISH)
 		{
-			if (lineSize < m_linePosition)
-			{
-				m_state = State::FINISH;
-			}
 			switch (m_state)
 			{
 			case Lexer::State::COMMON: {
 				if (m_char == ' ' || m_char == '\t' || m_char == '\0')
 				{
 					GetChar(line);
+				}
+				else if (m_char == '\n')
+				{
+					m_state = State::FINISH;
 				}
 				else if (std::isalpha(m_char) || m_char == '_')
 				{
@@ -223,7 +225,6 @@ void Lexer::Run(std::ifstream& input)
 					AppendBuffer(m_char);
 					m_state = State::COMMENT;
 					GetChar(line);
-					
 				}
 				else
 				{
@@ -255,7 +256,7 @@ void Lexer::Run(std::ifstream& input)
 				auto it = FindLexeme(m_delimeters);
 				if (it != m_delimeters.end())
 				{
-					AppendToken(TokenTypename::DELIMITER, m_buffer, m_lineNumber, m_linePosition);
+					AppendToken(TokenTypename::DELIMITER, m_buffer, m_lineNumber, m_linePosition + 1);
 					m_state = State::COMMON;
 					GetChar(line);
 					ClearBuffer();
@@ -326,7 +327,6 @@ void Lexer::Run(std::ifstream& input)
 						m_state = State::OCTAL;
 						AppendBuffer(m_char);
 						GetChar(line);
-						
 					}
 					else
 					{
@@ -364,7 +364,7 @@ void Lexer::Run(std::ifstream& input)
 				else
 				{
 					AppendToken(TokenTypename::OCTAL, m_buffer, m_lineNumber, m_linePosition);
-					m_state = State::COMMON;
+					m_state = State::ERROR;
 					ClearBuffer();
 				}
 				break;
@@ -379,7 +379,7 @@ void Lexer::Run(std::ifstream& input)
 				else
 				{
 					AppendToken(TokenTypename::HEXADECIMAL, m_buffer, m_lineNumber, m_linePosition);
-					m_state = State::COMMON;
+					m_state = State::ERROR;
 					ClearBuffer();
 				}
 				break;
@@ -431,11 +431,18 @@ void Lexer::Run(std::ifstream& input)
 				}
 				break;
 			}
-			case Lexer::State::FINISH:
-				// TODO: что-то делать
+			case Lexer::State::FINISH: {
+				m_char = ' ';
+				if (Lexer_DEBUG)
+				{
+					std::cout << "Finish analyze of "
+							  << m_lineNumber << '\n'
+							  << "Current tokens size is "
+							  << m_tokens.size() << '\n';
+				}
 				break;
+			}
 			case Lexer::State::ERROR: {
-				// save buffer
 				auto tempBuffer = m_buffer;
 				m_buffer = m_char;
 				auto it = FindLexeme(m_delimeters);
