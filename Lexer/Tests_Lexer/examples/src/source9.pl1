@@ -1,3 +1,4 @@
 DO WHILE(s1>1000);
-sum=sum+1.8765;
+sum=sum+1.8765; //inline comment
+//comment
 END;

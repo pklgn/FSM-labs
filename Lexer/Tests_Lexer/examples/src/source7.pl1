@@ -1,4 +1,5 @@
 IF S1>1000 THEN DO;
     PUT SKIP EDIT("some random text")(A);
+    DECLARE s = 1 && 2 || 3 (4 != 5) <= 6 >= 7 == 8;    
 STOP;
-                              END;
+END;
