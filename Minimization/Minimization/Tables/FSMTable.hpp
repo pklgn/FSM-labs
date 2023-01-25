@@ -118,7 +118,7 @@ inline void FSMTable<T>::RemoveUnreachableStates()
 
 	for (auto& state : m_transitionTable[inspectedState].commonStates)
 	{
-		if (inspectedState != state)
+		if (inspectedState != state && state != "-")
 		{
 			statesWave.push_back(state);
 			reachableStates.insert(state);
@@ -133,11 +133,11 @@ inline void FSMTable<T>::RemoveUnreachableStates()
 
 		for (auto& transitionState : m_transitionTable[inspectedState].commonStates)
 		{
-			if (inspectedState != transitionState)
+			if (inspectedState != transitionState && transitionState != "-")
 			{
 				reachableStates.insert(transitionState);
 			}
-			if (!traversedStates.count(transitionState))
+			if (!traversedStates.count(transitionState) && transitionState != "-")
 			{
 				statesWave.push_back(transitionState);
 			}
@@ -168,7 +168,10 @@ inline size_t FSMTable<T>::CommonMinimize()
 	{
 		for (size_t inputSignal = 0; inputSignal < m_inputSignals.size(); ++inputSignal)
 		{
-			transitions.aliasedStates[inputSignal] = std::to_string(m_eqvClasses[transitions.commonStates[inputSignal]]);
+			if (transitions.commonStates[inputSignal] != "-")
+			{
+				transitions.aliasedStates[inputSignal] = std::to_string(m_eqvClasses[transitions.commonStates[inputSignal]]);
+			}
 		}
 	}
 
@@ -238,6 +241,10 @@ inline void FSMTable<T>::SetupTransitionTableByEquivalenceClasses()
 	for (auto& [oldState, aliasedState] : m_eqvClasses)
 	{
 		auto newState = std::to_string(aliasedState);
+		if (newState == "q")
+		{
+			newState = "-";
+		}
 		m_transitionTable.emplace(newState, m_transitionTable[oldState]);
 		m_transitionTable[newState].commonStates = m_transitionTable[oldState].aliasedStates;
 		m_transitionTable.erase(oldState);

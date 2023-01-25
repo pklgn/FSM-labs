@@ -33,8 +33,8 @@ public:
 	MooreTable Determine();
 
 protected:
-	std::set<State> GetEClosure(const State& state);
-	std::set<State> GetEClosures(const std::set<State>& states);
+	std::set<State> GetEClosure(const State& state, std::set<State>& closures);
+	std::set<State> GetEClosures(const std::set<State>& states, std::set<State>& closures);
 	void AppendOutputSignal(Signals&, const std::set<State>& currStates);
 	void RemoveUnreachableOutputSignals(const States&);
 

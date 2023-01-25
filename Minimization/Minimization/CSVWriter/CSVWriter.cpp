@@ -48,8 +48,16 @@ void CSVWriter::WriteMooreTable(const MooreTable& mooreTable)
 		m_outputStream << inputSignals[line];
 		for (auto& state: states)
 		{
-			m_outputStream << CSV_DELIMITER
-						   << STATE_PREFIX << transitionTable[state].commonStates[line];
+			auto currState = transitionTable[state].commonStates[line];
+			m_outputStream << CSV_DELIMITER;
+			if (currState != "")
+			{
+				m_outputStream << STATE_PREFIX << transitionTable[state].commonStates[line];
+			}
+			else
+			{
+				m_outputStream << "-";
+			}
 		}
 		m_outputStream << std::endl;
 	}

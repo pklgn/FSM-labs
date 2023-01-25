@@ -45,27 +45,27 @@ TableView ConvertMealyToMoore::RetrieveTransitionTable(const TableView& srcTable
 
 TableView ConvertMealyToMoore::Convert(const TableView& srcTable, std::string sign)
 {
-    auto transitionTable = RetrieveTransitionTable(srcTable);
-    auto mealyStatesCount = transitionTable.front().size();
-    auto inputSignalsCount = transitionTable.size();
+	auto transitionTable = RetrieveTransitionTable(srcTable);
+	auto mealyStatesCount = transitionTable.front().size();
+	auto inputSignalsCount = transitionTable.size();
 
-    //remove duplicates from transition table
-    std::vector<std::string> uniqueStates;
-    for (auto& row : transitionTable)
-    {
-        uniqueStates.insert(uniqueStates.end(), row.begin(), row.end());
-    }
-    std::sort(uniqueStates.begin(), uniqueStates.end());
-    uniqueStates.erase(std::unique(uniqueStates.begin(), uniqueStates.end()), uniqueStates.end());
+	// remove duplicates from transition table
+	std::vector<std::string> uniqueStates;
+	for (auto& row : transitionTable)
+	{
+		uniqueStates.insert(uniqueStates.end(), row.begin(), row.end());
+	}
+	std::sort(uniqueStates.begin(), uniqueStates.end());
+	uniqueStates.erase(std::unique(uniqueStates.begin(), uniqueStates.end()), uniqueStates.end());
 
-    //shape result table with unique columns count for transitions
-    TableView rawResult;
-    rawResult.resize(inputSignalsCount);
-    for (size_t row = 0; row < inputSignalsCount; ++row)
-    {
-        rawResult[row].resize(uniqueStates.size() + 1);
+	// shape result table with unique columns count for transitions
+	TableView rawResult;
+	rawResult.resize(inputSignalsCount);
+	for (size_t row = 0; row < inputSignalsCount; ++row)
+	{
+		rawResult[row].resize(uniqueStates.size() + 1);
 		rawResult[row][INPUT_SIGNAL_COLUMN_INDEX] = srcTable[row + 1][INPUT_SIGNAL_COLUMN_INDEX];
-    }
+	}
 
     //fill transition table with renamed states
     for (size_t stateCount = 1; stateCount < uniqueStates.size() + 1; ++stateCount)

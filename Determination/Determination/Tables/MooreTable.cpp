@@ -89,8 +89,9 @@ void MooreTable::RenameStates(const std::string& prefix)
 	m_transitionTable = renamedTransitionTable;
 }
 
-std::set<State> MooreTable::GetEClosure(const State& state)
+std::set<State> MooreTable::GetEClosure(const State& state, std::set<State>& result)
 {
+	result.insert(state);
 	std::set<State> resultSet;
 	if (state == NO_STATE)
 	{
@@ -101,22 +102,30 @@ std::set<State> MooreTable::GetEClosure(const State& state)
 	States closures;
 	auto closureStates = m_transitionTable[state].commonStates[eIndex];
 	std::move(closureStates.begin(), closureStates.end(), std::inserter(resultSet, resultSet.begin()));
-	std::for_each(resultSet.begin(), resultSet.end(), [&](const State& state) {
-		auto closure = GetEClosure(state);
+	for (auto&& state : resultSet)
+	{
+		std::set<State> closure;
+		if (!result.contains(state))
+		{
+			closure = GetEClosure(state, result);
+		}
+
 		std::move(closure.begin(), closure.end(), std::back_inserter(closures));
-	});
+	}
 	std::move(closures.begin(), closures.end(), std::inserter(resultSet, resultSet.begin()));
+	std::move(result.begin(), result.end(), std::inserter(resultSet, resultSet.begin()));
 	resultSet.insert(state);
 	return resultSet;
 }
 
-std::set<State> MooreTable::GetEClosures(const std::set<State>& states)
+std::set<State> MooreTable::GetEClosures(const std::set<State>& states, std::set<State>& closures)
 {
 	std::set<State> reachableStates;
 	std::set<State> nextStates;
 	for (auto&& state : states)
 	{
-		nextStates = GetEClosure(state);
+		nextStates = GetEClosure(state, closures);
+		std::move(closures.begin(), closures.end(), std::inserter(nextStates, nextStates.begin()));
 		reachableStates.insert(nextStates.begin(), nextStates.end());
 	}
 	return reachableStates;
@@ -164,9 +173,11 @@ MooreTable MooreTable::Determine()
 	while (!statesToDetermine.empty())
 	{
 		currStates = statesToDetermine.front();
+		std::set<State> resultCurrStates;
+		std::set<State> resultSet;
 		if (haveEClosure)
 		{
-			currStates = GetEClosures(currStates);
+			currStates = GetEClosures(currStates, resultSet);
 		}
 		States currStatesVec = { currStates.begin(), currStates.end() };
 		states.insert(currStatesVec);
@@ -188,8 +199,9 @@ MooreTable MooreTable::Determine()
 					auto dstStates = m_transitionTable[currState].commonStates[signalIndex];
 					nextStates.insert(dstStates.begin(), dstStates.end());
 				}
-				auto nextStatesEClosure = (haveEClosure)
-					? GetEClosures(nextStates)
+				std::set<State> nextStatesEClosure;
+				nextStatesEClosure = (haveEClosure)
+					? GetEClosures(nextStates, nextStatesEClosure)
 					: nextStates;
 				States nextStatesVec = { nextStatesEClosure.begin(), nextStatesEClosure.end() };
 				if (!states.contains(nextStatesVec))

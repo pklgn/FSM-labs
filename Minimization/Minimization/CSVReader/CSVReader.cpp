@@ -78,6 +78,9 @@ MooreTable CSVReader::ReadMooreTable()
 	Signals inputSignals;
 	while (std::getline(m_inputFile, row))
 	{
+		// считываем построчно: сначала заносим информацию о входном сигнале
+		// так как он находится в начале каждой строки таблицы
+		// затем заполняем ячейки таблиц состояниями, в которые возможен переход по указанному символу
 		lineStream.str(row);
 		lineStream.clear();
 		std::getline(lineStream, tableField, CSV_DELIMITER);

@@ -21,12 +21,15 @@ void MooreTable::Minimize()
 	{
 		auto insertResult = equivalenceClasses.emplace(outputSignal, equivalenceClass);
 
+		// если выходной сигнал не был вставлен в множество, значит он там уже есть
+		// в противном случае это означает, что мы нашли новый класс эквивалентности
 		if (insertResult.second)
 		{
 			++equivalenceClass;
 		}
 	}
 
+	// записываем к какому классу эквивалентности на данный момент принадлежит каждое состояние
 	for (auto& [state, outputSignal] : m_mooreStates)
 	{
 		m_eqvClasses[state] = equivalenceClasses[outputSignal];
