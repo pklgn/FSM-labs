@@ -1,0 +1,6 @@
+[submodule "LL1"]
+	path = LL1
+	url = https://github.com/pklgn/LL1
+[submodule "RecursiveDescent"]
+	path = RecursiveDescent
+	url = https://github.com/pklgn/recursive-descent
